@@ -84,11 +84,10 @@ const PostsGrid = () => {
       {recentPosts.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold mb-6">Artigos Recentes</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {recentPosts.map((post) => (
               <PostCard 
                 key={post.id}
-                variant="horizontal"
                 post={{
                   id: parseInt(post.id),
                   title: post.title,

@@ -3,12 +3,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Tags, 
-  Settings, 
-  Users, 
+import {
+  LayoutDashboard,
+  FileText,
+  Tags,
+  Settings,
+  Users,
   BarChart3,
   LogOut,
   Menu,
@@ -48,11 +48,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Posts', href: '/admin/posts', icon: FileText },
     { name: 'Categorias', href: '/admin/categories', icon: Tags },
-    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     ...(userRole === 'admin' ? [
       { name: 'Usuários', href: '/admin/users', icon: Users },
       { name: 'Configurações', href: '/admin/settings', icon: Settings },
     ] : []),
+    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   ];
 
   const isCurrentPath = (path: string) => {

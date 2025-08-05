@@ -76,16 +76,16 @@ export default function Post() {
   return (
     <div className="min-h-screen">
       {/* Hero Section with Background Image */}
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative h-80 overflow-hidden bg-gradient-to-r from-blue-900 to-purple-900">
         {/* Blurred Background */}
         <div 
-          className="absolute inset-0 bg-cover bg-center filter blur-sm scale-110"
+          className="absolute inset-0 bg-cover bg-center filter blur-sm scale-110 opacity-30"
           style={{ backgroundImage: `url(${post.featuredImage})` }}
         />
         <div className="absolute inset-0 bg-black/40" />
         
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-center items-center text-white px-4">
+        <div className="relative z-10 h-full flex items-center px-4">
           <Link to="/" className="absolute top-6 left-6">
             <Button variant="ghost" className="text-white hover:bg-white/20">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -93,17 +93,46 @@ export default function Post() {
             </Button>
           </Link>
           
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              {post.title}
-            </h1>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center w-full">
+            {/* Title and Meta on the left */}
+            <div className="text-white">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                {post.title}
+              </h1>
+              
+              <div className="flex items-center gap-6 text-sm text-white/80 mb-6">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {formatDistanceToNow(new Date(post.publishedAt || post.createdAt), {
+                      addSuffix: true,
+                      locale: ptBR
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{post.readTime} min de leitura</span>
+                </div>
+              </div>
+              
+              {post.categories && (
+                <Badge 
+                  variant="outline" 
+                  style={{ borderColor: post.categories.color, color: post.categories.color }}
+                  className="text-sm bg-white/10"
+                >
+                  {post.categories.name}
+                </Badge>
+              )}
+            </div>
             
-            {/* Featured Image Overlay */}
-            <div className="inline-block">
+            {/* Featured Image on the right */}
+            <div className="flex justify-center lg:justify-end">
               <img
                 src={post.featuredImage}
                 alt={post.title}
-                className="max-w-sm md:max-w-md rounded-lg shadow-2xl"
+                className="max-w-xs md:max-w-sm lg:max-w-md rounded-lg shadow-2xl"
               />
             </div>
           </div>
@@ -112,24 +141,8 @@ export default function Post() {
 
       {/* Article Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Article Meta + Social Share Bar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-6 border-b border-border mb-8">
-          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4 md:mb-0">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>
-                {formatDistanceToNow(new Date(post.publishedAt || post.createdAt), {
-                  addSuffix: true,
-                  locale: ptBR
-                })}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{post.readTime} min de leitura</span>
-            </div>
-          </div>
-          
+        {/* Social Share Bar */}
+        <div className="flex justify-center py-6 border-b border-border mb-8">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground mr-2">Compartilhe:</span>
             <Button
@@ -170,19 +183,6 @@ export default function Post() {
             </Button>
           </div>
         </div>
-
-        {/* Category Badge */}
-        {post.categories && (
-          <div className="mb-6">
-            <Badge 
-              variant="outline" 
-              style={{ borderColor: post.categories.color }}
-              className="text-sm"
-            >
-              {post.categories.name}
-            </Badge>
-          </div>
-        )}
 
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">

@@ -1,146 +1,137 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Facebook, Twitter, Youtube, Instagram, Mail } from "lucide-react";
 import PostCard from "./PostCard";
+import { useState } from "react";
 
 const Sidebar = () => {
-  // Mock popular posts
+  const [email, setEmail] = useState("");
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aqui você pode implementar a lógica de inscrição na newsletter
+    console.log("Newsletter subscription:", email);
+    setEmail("");
+  };
+
+  // Posts populares fictícios
   const popularPosts = [
     {
       id: 1,
       title: "10 Ferramentas de IA Que Todo Criador Deveria Conhecer",
-      excerpt: "",
-      author: "Maria Santos",
+      excerpt: "Descubra as melhores ferramentas de inteligência artificial...",
+      author: "Equipe CriativeIA",
       publishedAt: "2024-01-10",
-      readTime: "8 min",
+      readTime: "5 min",
       category: "IA Tools",
-      imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=400&h=300",
-      slug: "ferramentas-ia-criadores",
-      isPopular: true
+      imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&h=300",
+      slug: "10-ferramentas-ia-criador"
     },
     {
       id: 2,
-      title: "Como Monetizar Seu Blog com IA em 2024",
-      excerpt: "",
-      author: "Pedro Costa",
+      title: "ChatGPT vs Claude: Qual IA Escolher para seu Projeto?",
+      excerpt: "Comparamos as principais ferramentas de IA disponíveis...",
+      author: "Carlos Oliveira",
       publishedAt: "2024-01-08",
-      readTime: "6 min",
-      category: "Monetização",
-      imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&h=300",
-      slug: "monetizar-blog-ia-2024",
-      isPopular: true
-    },
-    {
-      id: 3,
-      title: "Criando Agentes IA para Automação de Tarefas",
-      excerpt: "",
-      author: "Ana Silva",
-      publishedAt: "2024-01-05",
-      readTime: "10 min",
-      category: "Agentes",
-      imageUrl: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&w=400&h=300",
-      slug: "agentes-ia-automacao",
-      isPopular: true
+      readTime: "7 min",
+      category: "IA Tools",
+      imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&h=300",
+      slug: "chatgpt-vs-claude-qual-escolher"
     }
   ];
 
-  const socialStats = [
-    { platform: "Facebook", count: "25.7k", icon: Facebook, color: "text-blue-600" },
-    { platform: "Twitter", count: "39.3k", icon: Twitter, color: "text-sky-500" },
-    { platform: "YouTube", count: "65.4k", icon: Youtube, color: "text-red-600" },
-    { platform: "Instagram", count: "23.9k", icon: Instagram, color: "text-pink-600" },
-  ];
-
   return (
-    <aside className="space-y-8">
-      {/* Newsletter Signup */}
-      <Card className="bg-gradient-primary text-primary-foreground">
+    <div className="space-y-8">
+      {/* Newsletter */}
+      <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center gap-2 text-white">
             <Mail className="h-5 w-5" />
-            <span>Newsletter</span>
+            Newsletter
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm opacity-90">
+        <CardContent>
+          <p className="text-purple-100 mb-4">
             Receba as últimas novidades sobre IA e tecnologia diretamente no seu email.
           </p>
-          <div className="space-y-2">
-            <input
+          <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+            <Input
               type="email"
               placeholder="Seu email"
-              className="w-full px-3 py-2 rounded-lg text-foreground bg-primary-foreground/10 backdrop-blur border border-primary-foreground/20 placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="bg-white/20 border-white/30 text-white placeholder:text-purple-200"
             />
-            <Button variant="secondary" className="w-full">
+            <Button 
+              type="submit" 
+              className="w-full bg-white text-purple-600 hover:bg-purple-50"
+            >
               Inscrever-se
             </Button>
-          </div>
+          </form>
         </CardContent>
       </Card>
 
-      {/* Social Media Stats */}
+      {/* Posts Populares */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Posts Populares</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {popularPosts.map((post) => (
+            <div key={post.id} className="flex gap-3 pb-4 border-b border-border last:border-b-0 last:pb-0">
+              <img
+                src={post.imageUrl}
+                alt={post.title}
+                className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-sm leading-tight mb-1 line-clamp-2">
+                  {post.title}
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  {post.readTime} • {post.publishedAt.split('-')[2]}/{post.publishedAt.split('-')[1]}/{post.publishedAt.split('-')[0]}
+                </p>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Siga-nos */}
       <Card>
         <CardHeader>
           <CardTitle>Siga-nos</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            {socialStats.map((social) => {
-              const Icon = social.icon;
-              return (
-                <div
-                  key={social.platform}
-                  className="flex flex-col items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors cursor-pointer"
-                >
-                  <Icon className={`h-5 w-5 ${social.color} mb-2`} />
-                  <span className="text-sm font-semibold">{social.count}</span>
-                  <span className="text-xs text-muted-foreground">{social.platform}</span>
-                </div>
-              );
-            })}
+            <div className="text-center">
+              <Facebook className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <div className="text-sm font-medium">25.7k</div>
+              <div className="text-xs text-muted-foreground">Facebook</div>
+            </div>
+            <div className="text-center">
+              <Twitter className="h-8 w-8 mx-auto mb-2 text-blue-400" />
+              <div className="text-sm font-medium">39.3k</div>
+              <div className="text-xs text-muted-foreground">Twitter</div>
+            </div>
+            <div className="text-center">
+              <Youtube className="h-8 w-8 mx-auto mb-2 text-red-600" />
+              <div className="text-sm font-medium">65.4k</div>
+              <div className="text-xs text-muted-foreground">YouTube</div>
+            </div>
+            <div className="text-center">
+              <Instagram className="h-8 w-8 mx-auto mb-2 text-pink-600" />
+              <div className="text-sm font-medium">23.9k</div>
+              <div className="text-xs text-muted-foreground">Instagram</div>
+            </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Popular Posts */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Posts Populares</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {popularPosts.map((post) => (
-            <PostCard key={post.id} post={post} variant="horizontal" />
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Categories */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Categorias</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {[
-              { name: "IA Tools", count: 25 },
-              { name: "Monetização", count: 18 },
-              { name: "Agentes", count: 12 },
-              { name: "Automações", count: 15 },
-            ].map((category) => (
-              <div
-                key={category.name}
-                className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-              >
-                <span className="text-sm font-medium">{category.name}</span>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                  {category.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </aside>
+    </div>
   );
 };
 

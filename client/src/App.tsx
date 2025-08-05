@@ -11,6 +11,10 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/admin/Dashboard";
 import Posts from "./pages/admin/Posts";
 import PostEditor from "./pages/admin/PostEditor";
+import Categories from "./pages/admin/Categories";
+import Analytics from "./pages/admin/Analytics";
+import Users from "./pages/admin/Users";
+import Settings from "./pages/admin/Settings";
 import Post from "./pages/Post";
 import NotFound from "./pages/NotFound";
 
@@ -32,8 +36,10 @@ const App = () => (
             <Route path="/admin/posts" element={<AdminLayout><Posts /></AdminLayout>} />
             <Route path="/admin/posts/new" element={<AdminLayout><PostEditor /></AdminLayout>} />
             <Route path="/admin/posts/edit/:id" element={<AdminLayout><PostEditor /></AdminLayout>} />
-            <Route path="/admin/categories" element={<AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Categorias</h1><p className="text-muted-foreground">Gerenciamento de categorias em desenvolvimento.</p></div></AdminLayout>} />
-            <Route path="/admin/settings" element={<AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Configurações</h1><p className="text-muted-foreground">Configurações do sistema em desenvolvimento.</p></div></AdminLayout>} />
+            <Route path="/admin/categories" element={<AdminLayout><Categories /></AdminLayout>} />
+            <Route path="/admin/analytics" element={<AdminLayout><Analytics /></AdminLayout>} />
+            <Route path="/admin/users" element={<AdminLayout><Users /></AdminLayout>} />
+            <Route path="/admin/settings" element={<AdminLayout><Settings /></AdminLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
