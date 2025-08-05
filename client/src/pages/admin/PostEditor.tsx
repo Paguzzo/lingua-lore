@@ -250,6 +250,50 @@ export default function PostEditor() {
     }
   };
 
+  const formatText = (format: string) => {
+    const textarea = document.getElementById('content') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    if (!selectedText) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione um texto primeiro para formatar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    let formattedText = '';
+    switch (format) {
+      case 'h1':
+        formattedText = `<h1 style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">${selectedText}</h1>`;
+        break;
+      case 'h2':
+        formattedText = `<h2 style="font-size: 1.5rem; font-weight: bold; margin: 0.8rem 0;">${selectedText}</h2>`;
+        break;
+      case 'bold':
+        formattedText = `<strong style="font-weight: bold;">${selectedText}</strong>`;
+        break;
+      case 'bullet':
+        const lines = selectedText.split('\n').filter(line => line.trim());
+        const listItems = lines.map(line => `<li style="margin: 0.2rem 0;">${line.trim()}</li>`).join('');
+        formattedText = `<ul style="margin: 1rem 0; padding-left: 1.5rem;">${listItems}</ul>`;
+        break;
+    }
+
+    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    setPostData(prev => ({ ...prev, content: newContent }));
+    
+    toast({
+      title: 'Formatação aplicada',
+      description: `Texto formatado como ${format.toUpperCase()} com sucesso.`,
+    });
+  };
+
   const selectedCategory = categories.find(cat => cat.id === postData.categoryId);
 
   if (isLoading) {
@@ -340,16 +384,54 @@ export default function PostEditor() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <Label htmlFor="content">Conteúdo</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAddLink}
-                    className="text-blue-600"
-                  >
-                    <Link className="h-4 w-4 mr-2" />
-                    Adicionar Link
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('h1')}
+                      title="Título H1"
+                    >
+                      H1
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('h2')}
+                      title="Título H2"
+                    >
+                      H2
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('bold')}
+                      title="Negrito"
+                    >
+                      <strong>B</strong>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('bullet')}
+                      title="Lista com marcadores"
+                    >
+                      •
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddLink}
+                      className="text-blue-600"
+                    >
+                      <Link className="h-4 w-4 mr-2" />
+                      Link
+                    </Button>
+                  </div>
                 </div>
                 <Textarea
                   id="content"
@@ -360,7 +442,7 @@ export default function PostEditor() {
                   placeholder="Escreva o conteúdo do artigo..."
                 />
                 <p className="text-sm text-muted-foreground">
-                  Dica: Selecione um texto e clique em "Adicionar Link" para inserir links clicáveis.
+                  Dica: Selecione um texto e use os botões acima para formatar (H1, H2, Negrito, Lista) ou adicionar links.
                 </p>
               </div>
             </CardContent>

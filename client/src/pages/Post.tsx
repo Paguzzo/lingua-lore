@@ -1,4 +1,3 @@
-
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -84,12 +83,12 @@ export default function Post() {
       {/* Hero Section with Background Image */}
       <div className="relative h-80 overflow-hidden bg-gradient-to-r from-blue-900 to-purple-900">
         {/* Blurred Background */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center filter blur-sm scale-110 opacity-30"
           style={{ backgroundImage: `url(${post.featuredImage})` }}
         />
         <div className="absolute inset-0 bg-black/40" />
-        
+
         {/* Content */}
         <div className="relative z-10 h-full flex items-center px-4">
           <Link to="/" className="absolute top-6 left-6">
@@ -98,14 +97,14 @@ export default function Post() {
               Voltar
             </Button>
           </Link>
-          
+
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center w-full">
             {/* Title and Meta on the left */}
             <div className="text-white">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
                 {post.title}
               </h1>
-              
+
               <div className="flex items-center gap-6 text-sm text-white/80 mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
@@ -121,10 +120,10 @@ export default function Post() {
                   <span>{post.readTime} min de leitura</span>
                 </div>
               </div>
-              
+
               {post.categories && (
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   style={{ borderColor: post.categories.color, color: post.categories.color }}
                   className="text-sm bg-white/10"
                 >
@@ -132,7 +131,7 @@ export default function Post() {
                 </Badge>
               )}
             </div>
-            
+
             {/* Featured Image on the right */}
             <div className="flex justify-center lg:justify-end">
               <img
@@ -191,17 +190,79 @@ export default function Post() {
         </div>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none">
-          {post.excerpt && (
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              {post.excerpt}
-            </p>
-          )}
-          
-          <div 
-            className="whitespace-pre-wrap leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <article className="prose prose-lg max-w-none">
+              <div className="mb-8">
+                <img
+                  src={post.featuredImage}
+                  alt={post.title}
+                  className="w-full h-64 object-cover rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-bold text-foreground">{post.title}</h1>
+
+                  <div className="flex items-center space-x-6 text-muted-foreground">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">Por {post.authorName}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-4 w-4" />
+                      <span className="text-sm">
+                        {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm">{post.readTime} min de leitura</span>
+                    </div>
+                  </div>
+
+                  {post.excerpt && (
+                    <p className="text-xl text-muted-foreground leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  )}
+                </div>
+
+                {/* Google Ads - Top of content */}
+                <div className="my-8 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    PUBLICIDADE
+                    <br />
+                    Espaço para Google Ads - 728x90px
+                  </p>
+                </div>
+
+                <div
+                  className="prose-content"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+
+                {/* Google Ads - Bottom of content */}
+                <div className="my-8 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    PUBLICIDADE
+                    <br />
+                    Espaço para Google Ads - 728x90px
+                  </p>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div className="hidden lg:block">
+            {/* Google Ads - Sidebar */}
+            <div className="sticky top-8 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                PUBLICIDADE
+                <br />
+                Espaço para Google Ads - 300x600px
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Author Info */}
@@ -256,8 +317,8 @@ function ContactSection() {
         {/* WhatsApp Contact */}
         <div className="space-y-4">
           <h4 className="text-lg font-semibold">Contato Direto</h4>
-          <Button 
-            asChild 
+          <Button
+            asChild
             className="w-full bg-green-600 hover:bg-green-700 text-white"
             size="lg"
           >
@@ -266,7 +327,7 @@ function ContactSection() {
               Falar no WhatsApp
             </a>
           </Button>
-          
+
           <p className="text-sm text-muted-foreground text-center">
             Resposta rápida e direta!
           </p>
@@ -285,7 +346,7 @@ function ContactSection() {
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="contact-email">Email</Label>
               <Input
@@ -296,7 +357,7 @@ function ContactSection() {
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="contact-message">Mensagem</Label>
               <Textarea
@@ -307,7 +368,7 @@ function ContactSection() {
                 required
               />
             </div>
-            
+
             <Button type="submit" className="w-full">
               <Send className="mr-2 h-4 w-4" />
               Enviar Mensagem
@@ -315,7 +376,7 @@ function ContactSection() {
           </form>
         </div>
       </div>
-      
+
       <div className="text-center mt-6 pt-6 border-t border-border">
         <p className="text-sm text-muted-foreground">Até o próximo!</p>
       </div>

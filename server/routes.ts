@@ -162,6 +162,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         rawData.publishedAt = new Date(rawData.publishedAt);
       }
 
+      // Handle empty categoryId
+      if (!rawData.categoryId || rawData.categoryId === '') {
+        rawData.categoryId = null;
+      }
+
       const postData = insertPostSchema.parse(rawData);
       const post = await storage.createPost(postData);
       res.json(post);

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,6 +43,22 @@ const Sidebar = () => {
 
   return (
     <div className="space-y-8">
+      {/* Google Ads Space */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs text-muted-foreground">PUBLICIDADE</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Espaço para Google Ads
+              <br />
+              300x250px
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Newsletter */}
       <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
         <CardHeader>
@@ -98,6 +113,22 @@ const Sidebar = () => {
               </div>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* Second Google Ads Space */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs text-muted-foreground">PUBLICIDADE</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Espaço para Google Ads
+              <br />
+              300x600px
+            </p>
+          </div>
         </CardContent>
       </Card>
 

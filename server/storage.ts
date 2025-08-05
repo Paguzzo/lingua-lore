@@ -184,11 +184,6 @@ export class DatabaseStorage implements IStorage {
     return result.rowCount > 0;
   }
 
-  async deletePost(id: string): Promise<boolean> {
-    const result = await db.delete(posts).where(eq(posts.id, id));
-    return result.rowCount > 0;
-  }
-
   // Media management
   async getMedia(): Promise<Media[]> {
     return await db.select().from(media).orderBy(desc(media.createdAt));
