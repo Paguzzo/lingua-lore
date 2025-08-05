@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,15 +27,15 @@ interface PostData {
   slug: string;
   content: string;
   excerpt: string;
-  featured_image: string;
-  category_id: string;
-  is_published: boolean;
-  meta_title: string;
-  meta_description: string;
-  og_title: string;
-  og_description: string;
-  og_image: string;
-  read_time: number;
+  featuredImage: string;
+  categoryId: string;
+  isPublished: boolean;
+  metaTitle: string;
+  metaDescription: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  readTime: number;
 }
 
 export default function PostEditor() {
@@ -49,15 +50,15 @@ export default function PostEditor() {
     slug: '',
     content: '',
     excerpt: '',
-    featured_image: '',
-    category_id: '',
-    is_published: false,
-    meta_title: '',
-    meta_description: '',
-    og_title: '',
-    og_description: '',
-    og_image: '',
-    read_time: 5,
+    featuredImage: '',
+    categoryId: '',
+    isPublished: false,
+    metaTitle: '',
+    metaDescription: '',
+    ogTitle: '',
+    ogDescription: '',
+    ogImage: '',
+    readTime: 5,
   });
 
   useEffect(() => {

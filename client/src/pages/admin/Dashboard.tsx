@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Users, Eye, TrendingUp } from 'lucide-react';
 
@@ -11,39 +10,21 @@ interface DashboardStats {
 }
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
+  const { data: stats = {
     totalPosts: 0,
     publishedPosts: 0,
     totalViews: 0,
     totalUsers: 0,
-  });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
-    try {
-      const [postsResult, publishedResult, usersResult, analyticsResult] = await Promise.all([
-        supabase.from('posts').select('id', { count: 'exact' }),
-        supabase.from('posts').select('id', { count: 'exact' }).eq('is_published', true),
-        supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('analytics').select('id', { count: 'exact' }).eq('event_type', 'page_view'),
-      ]);
-
-      setStats({
-        totalPosts: postsResult.count || 0,
-        publishedPosts: publishedResult.count || 0,
-        totalUsers: usersResult.count || 0,
-        totalViews: analyticsResult.count || 0,
-      });
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-    } finally {
-      setLoading(false);
+  }, isLoading: loading } = useQuery<DashboardStats>({
+    queryKey: ['/api/dashboard/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/stats');
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard stats');
+      }
+      return response.json();
     }
-  };
+  });
 
   const statCards = [
     {

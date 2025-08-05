@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,113 +14,75 @@ interface Post {
   title: string;
   slug: string;
   excerpt: string;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-  author_name: string;
-  read_time: number;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  authorName: string;
+  readTime: number;
   categories?: { name: string; color: string };
 }
 
 export default function Posts() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  const { data: posts = [], isLoading: loading } = useQuery<Post[]>({
+    queryKey: ['/api/posts'],
+  });
 
-  const fetchPosts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          categories (
-            name,
-            color
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os posts.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeletePost = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este post?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setPosts(posts.filter(post => post.id !== id));
+  const deletePostMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/posts/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       toast({
         title: 'Post excluído',
         description: 'O post foi removido com sucesso.',
       });
-    } catch (error) {
-      console.error('Error deleting post:', error);
+    },
+    onError: () => {
       toast({
         title: 'Erro',
         description: 'Não foi possível excluir o post.',
         variant: 'destructive',
       });
     }
+  });
+
+  const handleDeletePost = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este post?')) return;
+    deletePostMutation.mutate(id);
   };
 
-  const togglePublishStatus = async (post: Post) => {
-    try {
-      const newStatus = !post.is_published;
-      const updateData: any = {
-        is_published: newStatus,
-      };
-
-      if (newStatus && !post.published_at) {
-        updateData.published_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('posts')
-        .update(updateData)
-        .eq('id', post.id);
-
-      if (error) throw error;
-
-      setPosts(posts.map(p => 
-        p.id === post.id 
-          ? { ...p, is_published: newStatus, published_at: updateData.published_at || p.published_at }
-          : p
-      ));
-
-      toast({
-        title: newStatus ? 'Post publicado' : 'Post despublicado',
-        description: `O post foi ${newStatus ? 'publicado' : 'removido da publicação'} com sucesso.`,
+  const toggleStatusMutation = useMutation({
+    mutationFn: async (post: Post) => {
+      const newStatus = !post.isPublished;
+      return apiRequest(`/api/posts/${post.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          isPublished: newStatus,
+          publishedAt: newStatus ? new Date().toISOString() : null
+        })
       });
-    } catch (error) {
-      console.error('Error updating post status:', error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      toast({
+        title: 'Status atualizado',
+        description: 'O status do post foi alterado com sucesso.',
+      });
+    },
+    onError: () => {
       toast({
         title: 'Erro',
         description: 'Não foi possível alterar o status do post.',
         variant: 'destructive',
       });
     }
+  });
+
+  const togglePublishStatus = (post: Post) => {
+    toggleStatusMutation.mutate(post);
   };
 
   if (loading) {
@@ -186,8 +148,8 @@ export default function Posts() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <CardTitle className="text-lg">{post.title}</CardTitle>
-                      <Badge variant={post.is_published ? "default" : "secondary"}>
-                        {post.is_published ? "Publicado" : "Rascunho"}
+                      <Badge variant={post.isPublished ? "default" : "secondary"}>
+                        {post.isPublished ? "Publicado" : "Rascunho"}
                       </Badge>
                       {post.categories && (
                         <Badge 
@@ -204,18 +166,18 @@ export default function Posts() {
                     <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        {post.author_name}
+                        {post.authorName}
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(post.created_at), { 
+                        {formatDistanceToNow(new Date(post.createdAt), { 
                           addSuffix: true, 
                           locale: ptBR 
                         })}
                       </div>
                       <div className="flex items-center gap-1">
                         <Eye className="h-3 w-3" />
-                        {post.read_time} min de leitura
+                        {post.readTime} min de leitura
                       </div>
                     </div>
                   </div>
@@ -225,7 +187,7 @@ export default function Posts() {
                       size="sm"
                       onClick={() => togglePublishStatus(post)}
                     >
-                      {post.is_published ? 'Despublicar' : 'Publicar'}
+                      {post.isPublished ? 'Despublicar' : 'Publicar'}
                     </Button>
                     <Link to={`/admin/posts/edit/${post.id}`}>
                       <Button variant="outline" size="sm">
