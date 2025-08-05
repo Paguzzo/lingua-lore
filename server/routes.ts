@@ -29,7 +29,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password } = req.body;
       const user = await storage.getUserByUsername(username);
-      
+
       if (!user || !bcrypt.compareSync(password, user.password)) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
@@ -45,7 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = insertUserSchema.parse(req.body);
       const hashedPassword = bcrypt.hashSync(userData.password, 10);
-      
+
       const user = await storage.createUser({
         ...userData,
         password: hashedPassword
@@ -83,11 +83,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const categoryData = insertCategorySchema.partial().parse(req.body);
       const category = await storage.updateCategory(id, categoryData);
-      
+
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
       }
-      
+
       res.json(category);
     } catch (error) {
       res.status(400).json({ error: "Failed to update category" });
@@ -98,11 +98,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const success = await storage.deleteCategory(id);
-      
+
       if (!success) {
         return res.status(404).json({ error: "Category not found" });
       }
-      
+
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete category" });
@@ -113,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/posts", async (req, res) => {
     try {
       const { published } = req.query;
-      const posts = published === 'true' 
+      const posts = published === 'true'
         ? await storage.getPublishedPosts()
         : await storage.getPosts();
       res.json(posts);
@@ -125,12 +125,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/posts/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const post = await storage.getPost(id);
-      
+      const post = await storage.getPostById(id);
+
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
       }
-      
+
       res.json(post);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch post" });
@@ -141,11 +141,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { slug } = req.params;
       const post = await storage.getPostBySlug(slug);
-      
+
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
       }
-      
+
       res.json(post);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch post" });
@@ -167,11 +167,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const postData = insertPostSchema.partial().parse(req.body);
       const post = await storage.updatePost(id, postData);
-      
+
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
       }
-      
+
       res.json(post);
     } catch (error) {
       res.status(400).json({ error: "Failed to update post" });
@@ -182,11 +182,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const success = await storage.deletePost(id);
-      
+
       if (!success) {
         return res.status(404).json({ error: "Post not found" });
       }
-      
+
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete post" });

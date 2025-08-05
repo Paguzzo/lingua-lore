@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { eq, desc, and } from "drizzle-orm";
-import { 
+import {
   users, posts, categories, profiles, media, affiliateLinks, ctas, analytics, siteSettings, webhooks,
   type User, type InsertUser, type Post, type InsertPost, type Category, type InsertCategory,
   type Profile, type InsertProfile, type Media, type InsertMedia, type AffiliateLink, type InsertAffiliateLink,
@@ -17,19 +17,19 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Profile management
   getProfile(userId: string): Promise<Profile | undefined>;
   createProfile(profile: InsertProfile): Promise<Profile>;
   updateProfile(userId: string, profile: Partial<InsertProfile>): Promise<Profile | undefined>;
-  
+
   // Category management
   getCategories(): Promise<Category[]>;
   getCategory(id: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: string): Promise<boolean>;
-  
+
   // Post management
   getPosts(): Promise<Post[]>;
   getPublishedPosts(): Promise<Post[]>;
@@ -38,37 +38,37 @@ export interface IStorage {
   createPost(post: InsertPost): Promise<Post>;
   updatePost(id: string, post: Partial<InsertPost>): Promise<Post | undefined>;
   deletePost(id: string): Promise<boolean>;
-  
+
   // Media management
   getMedia(): Promise<Media[]>;
   getMediaByPostId(postId: string): Promise<Media[]>;
   createMedia(media: InsertMedia): Promise<Media>;
   deleteMedia(id: string): Promise<boolean>;
-  
+
   // Affiliate links management
   getAffiliateLinks(): Promise<AffiliateLink[]>;
   getAffiliateLinksByPostId(postId: string): Promise<AffiliateLink[]>;
   createAffiliateLink(link: InsertAffiliateLink): Promise<AffiliateLink>;
   updateAffiliateLink(id: string, link: Partial<InsertAffiliateLink>): Promise<AffiliateLink | undefined>;
   deleteAffiliateLink(id: string): Promise<boolean>;
-  
+
   // CTA management
   getCtas(): Promise<Cta[]>;
   getCtasByPostId(postId: string): Promise<Cta[]>;
   createCta(cta: InsertCta): Promise<Cta>;
   updateCta(id: string, cta: Partial<InsertCta>): Promise<Cta | undefined>;
   deleteCta(id: string): Promise<boolean>;
-  
+
   // Analytics
   createAnalytic(analytic: InsertAnalytics): Promise<Analytics>;
   getAnalytics(): Promise<Analytics[]>;
   getAnalyticsByPostId(postId: string): Promise<Analytics[]>;
-  
+
   // Site settings
   getSiteSettings(): Promise<SiteSetting[]>;
   getSiteSetting(key: string): Promise<SiteSetting | undefined>;
   setSiteSetting(setting: InsertSiteSetting): Promise<SiteSetting>;
-  
+
   // Webhooks
   getWebhooks(): Promise<Webhook[]>;
   createWebhook(webhook: InsertWebhook): Promise<Webhook>;

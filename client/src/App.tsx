@@ -6,12 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Posts from "./pages/admin/Posts";
 import PostEditor from "./pages/admin/PostEditor";
+import Post from "./pages/Post";
+import NotFound from "./pages/NotFound";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,6 +23,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/post/:slug" element={<Post />} />
+
+            {/* Admin routes */}
             <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
             <Route path="/admin/posts" element={<AdminLayout><Posts /></AdminLayout>} />
             <Route path="/admin/posts/new" element={<AdminLayout><PostEditor /></AdminLayout>} />

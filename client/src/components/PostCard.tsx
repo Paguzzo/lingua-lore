@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Post {
   id: number;
@@ -22,8 +23,9 @@ interface PostCardProps {
 const PostCard = ({ post, variant = "default" }: PostCardProps) => {
   if (variant === "horizontal") {
     return (
-      <article className="group cursor-pointer">
-        <div className="flex space-x-4">
+      <Link to={`/post/${post.slug}`}>
+        <article className="group cursor-pointer">
+          <div className="flex space-x-4">
           <div className="flex-shrink-0">
             <div className="w-24 h-24 rounded-lg overflow-hidden">
               <img
@@ -55,12 +57,14 @@ const PostCard = ({ post, variant = "default" }: PostCardProps) => {
           </div>
         </div>
       </article>
+      </Link>
     );
   }
 
   if (variant === "minimal") {
     return (
-      <article className="group cursor-pointer space-y-2">
+      <Link to={`/post/${post.slug}`}>
+        <article className="group cursor-pointer space-y-2">
         <h3 className="font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
           {post.title}
         </h3>
@@ -69,11 +73,13 @@ const PostCard = ({ post, variant = "default" }: PostCardProps) => {
           <span>{new Date(post.publishedAt).toLocaleDateString('pt-BR')}</span>
         </div>
       </article>
+      </Link>
     );
   }
 
   return (
-    <article className="group cursor-pointer bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-border">
+    <Link to={`/post/${post.slug}`}>
+      <article className="group cursor-pointer bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-border">
       {/* Image */}
       <div className="aspect-[16/10] overflow-hidden">
         <img
@@ -121,6 +127,7 @@ const PostCard = ({ post, variant = "default" }: PostCardProps) => {
         </div>
       </div>
     </article>
+    </Link>
   );
 };
 
