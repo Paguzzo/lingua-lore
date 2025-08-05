@@ -81,7 +81,7 @@ const Sidebar = () => {
           <CardTitle>Posts Populares</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {popularPosts.map((post) => (
+          {popularArticles.map((post) => (
             <div key={post.id} className="flex gap-3 pb-4 border-b border-border last:border-b-0 last:pb-0">
               <img
                 src={post.imageUrl}
