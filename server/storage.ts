@@ -156,6 +156,11 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  async getPostById(id: string): Promise<Post | undefined> {
+    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
+    return result[0];
+  }
+
   async getPostBySlug(slug: string): Promise<Post | undefined> {
     const result = await db.select().from(posts).where(eq(posts.slug, slug)).limit(1);
     return result[0];
@@ -172,6 +177,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(posts.id, id))
       .returning();
     return result[0];
+  }
+
+  async deletePost(id: string): Promise<boolean> {
+    const result = await db.delete(posts).where(eq(posts.id, id));
+    return result.rowCount > 0;
   }
 
   async deletePost(id: string): Promise<boolean> {

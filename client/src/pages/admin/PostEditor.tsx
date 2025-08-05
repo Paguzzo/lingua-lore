@@ -61,9 +61,14 @@ export default function PostEditor() {
     readTime: 5,
   });
 
-  const { data: categories = [] } = useQuery<Category[]>({
+  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
+    retry: 3,
   });
+
+  if (categoriesError) {
+    console.error('Error loading categories:', categoriesError);
+  }
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['/api/posts', id],
@@ -171,6 +176,33 @@ export default function PostEditor() {
   });
 
   const handleSave = (publish = false) => {
+    if (!postData.title.trim()) {
+      toast({
+        title: 'Erro de validação',
+        description: 'O título é obrigatório.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!postData.content.trim()) {
+      toast({
+        title: 'Erro de validação',
+        description: 'O conteúdo é obrigatório.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (publish && !postData.categoryId) {
+      toast({
+        title: 'Erro de validação',
+        description: 'É necessário selecionar uma categoria para publicar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     savePostMutation.mutate(publish);
   };
 

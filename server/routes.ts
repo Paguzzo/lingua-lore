@@ -133,6 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(post);
     } catch (error) {
+      console.error("Error fetching post:", error);
       res.status(500).json({ error: "Failed to fetch post" });
     }
   });
@@ -158,7 +159,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const post = await storage.createPost(postData);
       res.json(post);
     } catch (error) {
-      res.status(400).json({ error: "Failed to create post" });
+      console.error("Error creating post:", error);
+      res.status(400).json({ error: "Failed to create post", details: error.message });
     }
   });
 
@@ -174,7 +176,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(post);
     } catch (error) {
-      res.status(400).json({ error: "Failed to update post" });
+      console.error("Error updating post:", error);
+      res.status(400).json({ error: "Failed to update post", details: error.message });
     }
   });
 
