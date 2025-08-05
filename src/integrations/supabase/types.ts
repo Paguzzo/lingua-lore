@@ -14,16 +14,412 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      affiliate_links: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          cta_text: string | null
+          description: string | null
+          discount: string | null
+          id: string
+          image_url: string | null
+          position_in_content: number | null
+          post_id: string | null
+          price: string | null
+          title: string
+          url: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          cta_text?: string | null
+          description?: string | null
+          discount?: string | null
+          id?: string
+          image_url?: string | null
+          position_in_content?: number | null
+          post_id?: string | null
+          price?: string | null
+          title: string
+          url: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          cta_text?: string | null
+          description?: string | null
+          discount?: string | null
+          id?: string
+          image_url?: string | null
+          position_in_content?: number | null
+          post_id?: string | null
+          price?: string | null
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_links_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics: {
+        Row: {
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          post_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          post_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          post_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ctas: {
+        Row: {
+          button_text: string
+          button_url: string | null
+          conversion_count: number | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          position: string | null
+          post_id: string | null
+          style: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          button_text: string
+          button_url?: string | null
+          conversion_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          position?: string | null
+          post_id?: string | null
+          style?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          button_text?: string
+          button_url?: string | null
+          conversion_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          position?: string | null
+          post_id?: string | null
+          style?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ctas_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          position_in_content: number | null
+          post_id: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          position_in_content?: number | null
+          post_id?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          position_in_content?: number | null
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_name: string
+          category_id: string | null
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          published_at: string | null
+          read_time: number | null
+          schema_markup: Json | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_name?: string
+          category_id?: string | null
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          read_time?: number | null
+          schema_markup?: Json | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          category_id?: string | null
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          read_time?: number | null
+          schema_markup?: Json | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          type: string | null
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          type?: string | null
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          type?: string | null
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
+      webhooks: {
+        Row: {
+          created_at: string
+          event_type: string
+          headers: Json | null
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          name: string
+          payload_template: Json | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          headers?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name: string
+          payload_template?: Json | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          headers?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name?: string
+          payload_template?: Json | null
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_uuid?: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "author"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +546,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "author"],
+    },
   },
 } as const
