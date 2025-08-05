@@ -3,17 +3,17 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, User } from "lucide-react";
 
 const HeroSection = () => {
-  // Mock featured post data
+  // Featured post data
   const featuredPost = {
     id: 1,
-    title: "Como a IA Está Revolucionando a Criação de Conteúdo em 2024",
-    excerpt: "Descubra as ferramentas de IA mais poderosas para criadores de conteúdo e como elas podem transformar seu workflow criativo.",
-    author: "João Silva",
+    title: "CriativeIA: O Futuro da Criação de Conteúdo Inteligente",
+    excerpt: "Explore como nossa plataforma revoluciona a criação de conteúdo combinando inteligência artificial com criatividade humana para resultados extraordinários.",
+    author: "Equipe CriativeIA",
     publishedAt: "2024-01-15",
-    readTime: "5 min",
-    category: "IA Tools",
-    imageUrl: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1200&h=600",
-    slug: "ia-revolucionando-criacao-conteudo-2024"
+    readTime: "7 min",
+    category: "IA & Criatividade",
+    imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&h=600",
+    slug: "criativeIA-futuro-criacao-conteudo-inteligente"
   };
 
   return (

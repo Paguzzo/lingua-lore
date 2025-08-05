@@ -1,16 +1,17 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Search, Globe } from "lucide-react";
+import { Menu, X, Search, Globe, Brain, Zap, Settings } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [language, setLanguage] = useState("pt");
 
   const categories = [
-    { name: "IA Tools", slug: "ia-tools" },
-    { name: "Monetização", slug: "monetization" },
-    { name: "Agentes", slug: "agents" },
-    { name: "Automações", slug: "automations" },
+    { name: "IA Criativa", slug: "ia-criativa" },
+    { name: "Ferramentas", slug: "ferramentas" },
+    { name: "Automação", slug: "automacao" },
+    { name: "Tutoriais", slug: "tutoriais" },
   ];
 
   const toggleLanguage = () => {
@@ -22,12 +23,20 @@ const Header = () => {
       <div className="container mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between py-4">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">B</span>
+          {/* Logo CriativeIA */}
+          <div className="flex items-center space-x-3">
+            <div className="relative w-10 h-10 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
+              <Brain className="h-5 w-5 text-white" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full flex items-center justify-center">
+                <Zap className="h-2 w-2 text-yellow-900" />
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">BlogIA</h1>
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
+                CriativeIA
+              </h1>
+              <span className="text-xs text-muted-foreground -mt-1">Inteligência Criativa</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
@@ -62,6 +71,18 @@ const Header = () => {
             <span className="text-sm text-muted-foreground hidden sm:block">
               {language === "pt" ? "PT" : "ES"}
             </span>
+
+            {/* Admin Access - Discrete Icon */}
+            <Link to="/auth">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 border border-slate-300 dark:border-slate-600 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-700 dark:hover:to-slate-600 transition-all duration-200 shadow-sm"
+                title="Admin Dashboard"
+              >
+                <span className="text-slate-700 dark:text-slate-300 font-bold text-sm">A</span>
+              </Button>
+            </Link>
 
             {/* Mobile menu button */}
             <Button
