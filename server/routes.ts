@@ -181,6 +181,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/posts/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const postData = insertPostSchema.partial().parse(req.body);
+      const post = await storage.updatePost(id, postData);
+
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      res.json(post);
+    } catch (error) {
+      console.error("Error updating post:", error);
+      res.status(400).json({ error: "Failed to update post", details: error.message });
+    }
+  });
+
   app.delete("/api/posts/:id", authenticateToken, async (req, res) => {
     try {
       const { id } = req.params;
