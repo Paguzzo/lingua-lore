@@ -47,6 +47,8 @@ export const posts = pgTable("posts", {
   categoryId: uuid("category_id"),
   authorName: text("author_name").notNull().default("Admin"),
   isPublished: boolean("is_published").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  position: text("position").default("recent"), // "featured", "recent", "popular"
   publishedAt: timestamp("published_at", { withTimezone: true }),
   readTime: integer("read_time").default(5),
   metaTitle: text("meta_title"),

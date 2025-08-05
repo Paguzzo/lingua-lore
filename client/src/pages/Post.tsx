@@ -2,11 +2,17 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { ArrowLeft, Clock, Calendar, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Share2, Facebook, Twitter, Linkedin, MessageCircle, Mail, Phone, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useState } from 'react';
+import PostCard from '@/components/PostCard';
 
 interface Post {
   id: string;
@@ -210,6 +216,143 @@ export default function Post() {
             </div>
           </div>
         </div>
+
+        {/* Contact Section */}
+        <ContactSection />
+
+        {/* Related Articles */}
+        <RelatedArticles currentPostId={post.id} />
+      </div>
+    </div>
+  );
+}
+
+// Contact Section Component
+function ContactSection() {
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aqui você implementaria o envio do formulário
+    console.log('Contact form:', contactForm);
+    setContactForm({ name: '', email: '', message: '' });
+  };
+
+  const whatsappNumber = "5511999999999"; // Isso viria das configurações
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Olá! Gostaria de entrar em contato.')}`;
+
+  return (
+    <div className="mt-12 pt-8 border-t bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 rounded-lg p-8">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold mb-2">Entre em Contato</h3>
+        <p className="text-muted-foreground">Tem alguma dúvida ou gostaria de conversar sobre este artigo?</p>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* WhatsApp Contact */}
+        <div className="space-y-4">
+          <h4 className="text-lg font-semibold">Contato Direto</h4>
+          <Button 
+            asChild 
+            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            size="lg"
+          >
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Falar no WhatsApp
+            </a>
+          </Button>
+          
+          <p className="text-sm text-muted-foreground text-center">
+            Resposta rápida e direta!
+          </p>
+        </div>
+
+        {/* Contact Form */}
+        <div className="space-y-4">
+          <h4 className="text-lg font-semibold">Formulário de Contato</h4>
+          <form onSubmit={handleContactSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="contact-name">Nome</Label>
+              <Input
+                id="contact-name"
+                value={contactForm.name}
+                onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="contact-email">Email</Label>
+              <Input
+                id="contact-email"
+                type="email"
+                value={contactForm.email}
+                onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="contact-message">Mensagem</Label>
+              <Textarea
+                id="contact-message"
+                value={contactForm.message}
+                onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                rows={4}
+                required
+              />
+            </div>
+            
+            <Button type="submit" className="w-full">
+              <Send className="mr-2 h-4 w-4" />
+              Enviar Mensagem
+            </Button>
+          </form>
+        </div>
+      </div>
+      
+      <div className="text-center mt-6 pt-6 border-t border-border">
+        <p className="text-sm text-muted-foreground">Até o próximo!</p>
+      </div>
+    </div>
+  );
+}
+
+// Related Articles Component
+function RelatedArticles({ currentPostId }: { currentPostId: string }) {
+  const { data: relatedPosts = [] } = useQuery({
+    queryKey: ['/api/posts/related', currentPostId],
+    queryFn: () => apiRequest(`/api/posts?published=true&limit=3&exclude=${currentPostId}`),
+  });
+
+  if (relatedPosts.length === 0) return null;
+
+  return (
+    <div className="mt-12 pt-8 border-t">
+      <h3 className="text-2xl font-bold mb-6 text-center">Artigos Relacionados</h3>
+      <div className="grid md:grid-cols-3 gap-6">
+        {relatedPosts.map((post: any) => (
+          <PostCard
+            key={post.id}
+            variant="minimal"
+            post={{
+              id: parseInt(post.id),
+              title: post.title,
+              excerpt: post.excerpt || '',
+              author: post.authorName,
+              publishedAt: post.publishedAt,
+              readTime: `${post.readTime} min`,
+              category: post.categories?.name || 'Geral',
+              imageUrl: post.featuredImage || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&h=400',
+              slug: post.slug
+            }}
+          />
+        ))}
       </div>
     </div>
   );

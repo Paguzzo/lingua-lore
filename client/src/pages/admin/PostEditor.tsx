@@ -31,6 +31,8 @@ interface PostData {
   featuredImage: string;
   categoryId: string;
   isPublished: boolean;
+  isFeatured: boolean;
+  position: 'featured' | 'recent' | 'popular';
   metaTitle: string;
   metaDescription: string;
   ogTitle: string;
@@ -53,6 +55,8 @@ export default function PostEditor() {
     featuredImage: '',
     categoryId: '',
     isPublished: false,
+    isFeatured: false,
+    position: 'recent',
     metaTitle: '',
     metaDescription: '',
     ogTitle: '',
@@ -90,6 +94,8 @@ export default function PostEditor() {
         featuredImage: post.featuredImage || '',
         categoryId: post.categoryId || '',
         isPublished: post.isPublished || false,
+        isFeatured: post.isFeatured || false,
+        position: post.position || 'recent',
         metaTitle: post.metaTitle || '',
         metaDescription: post.metaDescription || '',
         ogTitle: post.ogTitle || '',
@@ -165,15 +171,15 @@ export default function PostEditor() {
     onSuccess: (_, publish) => {
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       toast({
-        title: publish ? 'Post publicado' : 'Post salvo',
-        description: `O post foi ${publish ? 'publicado' : 'salvo como rascunho'} com sucesso.`,
+        title: publish ? 'Artigo publicado' : 'Artigo salvo',
+        description: `O artigo foi ${publish ? 'publicado' : 'salvo como rascunho'} com sucesso.`,
       });
       navigate('/admin/posts');
     },
     onError: (error: any) => {
       toast({
         title: 'Erro',
-        description: error.message || 'Não foi possível salvar o post.',
+        description: error.message || 'Não foi possível salvar o artigo.',
         variant: 'destructive',
       });
     }
@@ -267,10 +273,10 @@ export default function PostEditor() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">
-              {id ? 'Editar Post' : 'Novo Post'}
+              {id ? 'Editar Artigo' : 'Novo Artigo'}
             </h1>
             <p className="text-muted-foreground">
-              {id ? 'Modifique as informações do post' : 'Crie um novo artigo para o blog'}
+              {id ? 'Modifique as informações do artigo' : 'Crie um novo artigo para o blog'}
             </p>
           </div>
         </div>
@@ -306,7 +312,7 @@ export default function PostEditor() {
                   id="title"
                   value={postData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="Digite o título do post"
+                  placeholder="Digite o título do artigo"
                 />
               </div>
 
@@ -316,7 +322,7 @@ export default function PostEditor() {
                   id="slug"
                   value={postData.slug}
                   onChange={(e) => setPostData(prev => ({ ...prev, slug: e.target.value }))}
-                  placeholder="url-do-post"
+                  placeholder="url-do-artigo"
                 />
               </div>
 
@@ -326,7 +332,7 @@ export default function PostEditor() {
                   id="excerpt"
                   value={postData.excerpt}
                   onChange={(e) => setPostData(prev => ({ ...prev, excerpt: e.target.value }))}
-                  placeholder="Breve descrição do post"
+                  placeholder="Breve descrição do artigo"
                   rows={3}
                 />
               </div>
@@ -351,7 +357,7 @@ export default function PostEditor() {
                   onChange={(e) => setPostData(prev => ({ ...prev, content: e.target.value }))}
                   onMouseUp={handleTextSelection}
                   className="min-h-[300px]"
-                  placeholder="Escreva o conteúdo do post..."
+                  placeholder="Escreva o conteúdo do artigo..."
                 />
                 <p className="text-sm text-muted-foreground">
                   Dica: Selecione um texto e clique em "Adicionar Link" para inserir links clicáveis.
@@ -506,13 +512,38 @@ export default function PostEditor() {
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isPublished"
-                  checked={postData.isPublished}
-                  onCheckedChange={(checked) => setPostData(prev => ({ ...prev, isPublished: checked }))}
-                />
-                <Label htmlFor="isPublished">Publicado</Label>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isPublished"
+                    checked={postData.isPublished}
+                    onCheckedChange={(checked) => setPostData(prev => ({ ...prev, isPublished: checked }))}
+                  />
+                  <Label htmlFor="isPublished">Publicar</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isFeatured"
+                    checked={postData.isFeatured || false}
+                    onCheckedChange={(checked) => setPostData(prev => ({ ...prev, isFeatured: checked }))}
+                  />
+                  <Label htmlFor="isFeatured">Artigo em Destaque</Label>
+                </div>
+
+                <div>
+                  <Label htmlFor="position">Posição na Homepage</Label>
+                  <select
+                    id="position"
+                    value={postData.position || 'recent'}
+                    onChange={(e) => setPostData(prev => ({ ...prev, position: e.target.value as 'featured' | 'recent' | 'popular' }))}
+                    className="w-full mt-1 px-3 py-2 border border-input rounded-md"
+                  >
+                    <option value="featured">Artigo em Destaque</option>
+                    <option value="recent">Artigos Recentes</option>
+                    <option value="popular">Artigos Populares</option>
+                  </select>
+                </div>
               </div>
             </CardContent>
           </Card>

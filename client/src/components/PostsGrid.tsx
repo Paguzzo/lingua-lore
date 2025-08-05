@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import PostCard from "./PostCard";
 import { apiRequest } from "@/lib/queryClient";
@@ -75,7 +74,7 @@ const PostsGrid = () => {
             category: featuredPosts[0].categories?.name || 'Geral',
             imageUrl: featuredPosts[0].featuredImage || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&h=400',
             slug: featuredPosts[0].slug,
-            isPopular: true
+            isPopular: false
           }} />
         </div>
       )}

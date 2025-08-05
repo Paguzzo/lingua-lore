@@ -37,6 +37,11 @@ export default function Settings() {
     metaDescription: 'Blog sobre inteligência artificial, criatividade e inovação tecnológica.',
     googleAnalyticsId: '',
     
+    // Configurações de Contato
+    whatsappNumber: '',
+    contactEmail: 'contato@criativeai.com',
+    showContactForm: true,
+    
     // Configurações de Segurança
     registrationEnabled: true,
     commentApproval: false,
@@ -269,6 +274,52 @@ export default function Settings() {
                 value={settings.googleAnalyticsId}
                 onChange={(e) => updateSetting('googleAnalyticsId', e.target.value)}
                 placeholder="G-XXXXXXXXXX"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Configurações de Contato */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Configurações de Contato
+            </CardTitle>
+            <CardDescription>
+              Configure as informações de contato do blog
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="contactEmail">Email de Contato</Label>
+              <Input
+                id="contactEmail"
+                type="email"
+                value={settings.contactEmail}
+                onChange={(e) => updateSetting('contactEmail', e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="whatsappNumber">Número do WhatsApp</Label>
+              <Input
+                id="whatsappNumber"
+                value={settings.whatsappNumber}
+                onChange={(e) => updateSetting('whatsappNumber', e.target.value)}
+                placeholder="5511999999999"
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="showContactForm">Mostrar Formulário de Contato</Label>
+                <p className="text-sm text-muted-foreground">Exibir formulário de contato nas páginas de artigos</p>
+              </div>
+              <Switch
+                id="showContactForm"
+                checked={settings.showContactForm}
+                onCheckedChange={(checked) => updateSetting('showContactForm', checked)}
               />
             </div>
           </CardContent>

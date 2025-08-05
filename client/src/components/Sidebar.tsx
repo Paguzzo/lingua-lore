@@ -16,8 +16,8 @@ const Sidebar = () => {
     setEmail("");
   };
 
-  // Posts populares fictícios
-  const popularPosts = [
+  // Artigos populares
+  const popularArticles = [
     {
       id: 1,
       title: "10 Ferramentas de IA Que Todo Criador Deveria Conhecer",
