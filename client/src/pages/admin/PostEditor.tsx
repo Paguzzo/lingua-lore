@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,8 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Eye, Globe, Search, Image } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Globe, Search, Image, Link } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -60,6 +60,10 @@ export default function PostEditor() {
     ogImage: '',
     readTime: 5,
   });
+
+  const [selectedText, setSelectedText] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
 
   const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
@@ -206,6 +210,40 @@ export default function PostEditor() {
     savePostMutation.mutate(publish);
   };
 
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim()) {
+      setSelectedText(selection.toString());
+    }
+  };
+
+  const handleAddLink = () => {
+    if (selectedText) {
+      setShowLinkDialog(true);
+    } else {
+      toast({
+        title: 'Erro',
+        description: 'Selecione um texto primeiro para adicionar um link.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const insertLink = () => {
+    if (selectedText && linkUrl) {
+      const linkHtml = `<a href="${linkUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;">${selectedText}</a>`;
+      const newContent = postData.content.replace(selectedText, linkHtml);
+      setPostData(prev => ({ ...prev, content: newContent }));
+      setShowLinkDialog(false);
+      setLinkUrl('');
+      setSelectedText('');
+      toast({
+        title: 'Link adicionado',
+        description: 'O link foi inserido no texto com sucesso.',
+      });
+    }
+  };
+
   const selectedCategory = categories.find(cat => cat.id === postData.categoryId);
 
   if (isLoading) {
@@ -237,16 +275,16 @@ export default function PostEditor() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => handleSave(false)} 
+          <Button
+            variant="outline"
+            onClick={() => handleSave(false)}
             disabled={savePostMutation.isPending}
           >
             <Save className="mr-2 h-4 w-4" />
             Salvar Rascunho
           </Button>
-          <Button 
-            onClick={() => handleSave(true)} 
+          <Button
+            onClick={() => handleSave(true)}
             disabled={savePostMutation.isPending}
           >
             <Globe className="mr-2 h-4 w-4" />
@@ -294,17 +332,29 @@ export default function PostEditor() {
               </div>
 
               <div>
-                <Label htmlFor="content">Conteúdo</Label>
+                <div className="flex justify-between items-center mb-2">
+                  <Label htmlFor="content">Conteúdo</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddLink}
+                    className="text-blue-600"
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    Adicionar Link
+                  </Button>
+                </div>
                 <Textarea
                   id="content"
                   value={postData.content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  placeholder="Escreva o conteúdo do post em Markdown"
-                  rows={20}
-                  className="font-mono"
+                  onChange={(e) => setPostData(prev => ({ ...prev, content: e.target.value }))}
+                  onMouseUp={handleTextSelection}
+                  className="min-h-[300px]"
+                  placeholder="Escreva o conteúdo do post..."
                 />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Você pode usar Markdown para formatar o texto. Tempo de leitura estimado: {postData.readTime} min
+                <p className="text-sm text-muted-foreground">
+                  Dica: Selecione um texto e clique em "Adicionar Link" para inserir links clicáveis.
                 </p>
               </div>
             </CardContent>
@@ -483,6 +533,30 @@ export default function PostEditor() {
           )}
         </div>
       </div>
+
+      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Link</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label htmlFor="linkUrl">URL do Link</Label>
+            <Input
+              id="linkUrl"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://example.com"
+            />
+            <p className="text-sm text-muted-foreground">
+              Você está adicionando um link para: "{selectedText}"
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLinkDialog(false)}>Cancelar</Button>
+            <Button onClick={insertLink}>Adicionar Link</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

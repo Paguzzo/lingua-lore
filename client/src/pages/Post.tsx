@@ -192,9 +192,10 @@ export default function Post() {
             </p>
           )}
           
-          <div className="whitespace-pre-wrap leading-relaxed">
-            {post.content}
-          </div>
+          <div 
+            className="whitespace-pre-wrap leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         </div>
 
         {/* Author Info */}

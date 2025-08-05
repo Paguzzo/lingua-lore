@@ -28,9 +28,12 @@ const App = () => (
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
+            <Route path="/admin/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
             <Route path="/admin/posts" element={<AdminLayout><Posts /></AdminLayout>} />
             <Route path="/admin/posts/new" element={<AdminLayout><PostEditor /></AdminLayout>} />
             <Route path="/admin/posts/edit/:id" element={<AdminLayout><PostEditor /></AdminLayout>} />
+            <Route path="/admin/categories" element={<AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Categorias</h1><p className="text-muted-foreground">Gerenciamento de categorias em desenvolvimento.</p></div></AdminLayout>} />
+            <Route path="/admin/settings" element={<AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Configurações</h1><p className="text-muted-foreground">Configurações do sistema em desenvolvimento.</p></div></AdminLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
