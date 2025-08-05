@@ -155,7 +155,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/posts", authenticateToken, async (req, res) => {
     try {
-      const postData = insertPostSchema.parse(req.body);
+      const rawData = req.body;
+      
+      // Convert publishedAt string to Date if it exists
+      if (rawData.publishedAt && typeof rawData.publishedAt === 'string') {
+        rawData.publishedAt = new Date(rawData.publishedAt);
+      }
+      
+      const postData = insertPostSchema.parse(rawData);
       const post = await storage.createPost(postData);
       res.json(post);
     } catch (error) {
@@ -167,7 +174,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/posts/:id", authenticateToken, async (req, res) => {
     try {
       const { id } = req.params;
-      const postData = insertPostSchema.partial().parse(req.body);
+      const rawData = req.body;
+      
+      // Convert publishedAt string to Date if it exists
+      if (rawData.publishedAt && typeof rawData.publishedAt === 'string') {
+        rawData.publishedAt = new Date(rawData.publishedAt);
+      }
+      
+      const postData = insertPostSchema.partial().parse(rawData);
       const post = await storage.updatePost(id, postData);
 
       if (!post) {
@@ -184,7 +198,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/posts/:id", authenticateToken, async (req, res) => {
     try {
       const { id } = req.params;
-      const postData = insertPostSchema.partial().parse(req.body);
+      const rawData = req.body;
+      
+      // Convert publishedAt string to Date if it exists
+      if (rawData.publishedAt && typeof rawData.publishedAt === 'string') {
+        rawData.publishedAt = new Date(rawData.publishedAt);
+      }
+      
+      const postData = insertPostSchema.partial().parse(rawData);
       const post = await storage.updatePost(id, postData);
 
       if (!post) {
