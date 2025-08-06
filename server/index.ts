@@ -62,12 +62,14 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 3000
+  // ALWAYS serve the app on port 8080 (common for web dev)
   // this serves both the API and the client.
-  const port = 3000;
+  const port = 8080;
   server.listen(port, "0.0.0.0", () => {
     log(`🚀 Server running at http://localhost:${port}`);
     log(`🌐 Also try: http://127.0.0.1:${port}`);
     log(`💻 Network access: http://0.0.0.0:${port}`);
+    log(`📡 Remote access: http://172.30.0.2:${port}`);
+    log(`🔗 Try in browser: http://localhost:${port}`);
   });
 })();
