@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { IStorage } from "./storage";
 import { insertCategorySchema, insertPostSchema, insertProfileSchema, insertUserSchema } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -23,7 +23,7 @@ function authenticateToken(req: any, res: any, next: any) {
   });
 }
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, storage: IStorage): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
@@ -125,7 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/posts/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const post = await storage.getPostById(id);
+      const post = await storage.getPost(id);
 
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
