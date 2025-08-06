@@ -383,44 +383,158 @@ export class MemoryStorage implements IStorage {
 
   // Initialize with default data
   async initialize() {
-    // Create default categories
+    // Create admin user first
+    const adminUser = await this.createUser({
+      username: 'admin',
+      password: '$2b$10$T9PX5lF6SEbF5.NL7u7ZUOo04KCCbUywAE5dAdLJau7ZBs4rRYb/y' // password: 'admin123'
+    });
+
+    // Create default categories for AI theme
     const defaultCategories = [
       {
-        name: 'Idiomas',
-        slug: 'idiomas',
-        color: '#3B82F6',
-        description: 'Artigos sobre aprendizagem de idiomas'
-      },
-      {
-        name: 'Cultura',
-        slug: 'cultura',
+        name: 'IA Criativa',
+        slug: 'ia-criativa',
         color: '#8B5CF6',
-        description: 'Exploração de culturas ao redor do mundo'
+        description: 'Inteligência Artificial aplicada à criatividade'
       },
       {
-        name: 'Dicas de Estudo',
-        slug: 'dicas-estudo',
+        name: 'Ferramentas',
+        slug: 'ferramentas',
+        color: '#3B82F6',
+        description: 'Ferramentas de IA para criadores'
+      },
+      {
+        name: 'Automação',
+        slug: 'automacao',
         color: '#10B981',
-        description: 'Métodos e técnicas de estudo'
+        description: 'Automatização com IA'
       },
       {
-        name: 'Gramática',
-        slug: 'gramatica',
+        name: 'Tutoriais',
+        slug: 'tutoriais',
         color: '#F59E0B',
-        description: 'Explicações gramaticais claras'
-      },
-      {
-        name: 'Viagem',
-        slug: 'viagem',
-        color: '#EF4444',
-        description: 'Guias e dicas para viajantes'
+        description: 'Tutoriais passo a passo'
       }
     ];
 
+    const categories: Category[] = [];
     for (const cat of defaultCategories) {
-      await this.createCategory(cat);
+      const category = await this.createCategory(cat);
+      categories.push(category);
+    }
+
+    // Create sample posts
+    const samplePosts = [
+      {
+        title: 'Como a IA está Revolucionando a Criatividade',
+        slug: 'ia-revolucionando-criatividade',
+        content: `
+# Como a IA está Revolucionando a Criatividade
+
+A inteligência artificial está transformando a maneira como criamos, inovamos e expressamos nossa criatividade. Neste artigo, exploramos as principais tendências e ferramentas que estão moldando o futuro da criação.
+
+## O Que Mudou?
+
+A IA não substituiu a criatividade humana, mas sim ampliou nossas capacidades criativas de maneiras inimagináveis:
+
+- **Geração de Conteúdo**: Ferramentas como GPT-4 e Claude ajudam na escrita criativa
+- **Arte Digital**: DALL-E, Midjourney e Stable Diffusion democratizam a criação visual
+- **Música**: Ferramentas de composição assistida por IA
+- **Vídeo**: Edição automática e geração de conteúdo visual
+
+## Impacto na Indústria Criativa
+
+As indústrias criativas estão se adaptando rapidamente a essas novas tecnologias, criando novas oportunidades e desafios.
+
+A chave está em encontrar o equilíbrio perfeito entre a eficiência da IA e a essência humana da criatividade.
+        `,
+        excerpt: 'Descubra como a inteligência artificial está transformando o cenário criativo e oferecendo novas possibilidades para criadores de todos os tipos.',
+        featuredImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
+        categoryId: categories[0].id,
+        authorName: 'CriativeIA Team',
+        isPublished: true,
+        isFeatured: true,
+        readTime: 8,
+        views: 1520,
+        likes: 89,
+        tags: ['IA', 'Criatividade', 'Tecnologia', 'Futuro']
+      },
+      {
+        title: 'Top 10 Ferramentas de IA para Criadores em 2024',
+        slug: 'top-10-ferramentas-ia-criadores-2024',
+        content: `
+# Top 10 Ferramentas de IA para Criadores em 2024
+
+O cenário de ferramentas de IA para criadores está em constante evolução. Aqui estão as 10 ferramentas mais importantes que todo criador deveria conhecer.
+
+## 1. ChatGPT & Claude
+Para escrita criativa, brainstorming e automação de conteúdo.
+
+## 2. Midjourney
+Geração de imagens artísticas de alta qualidade.
+
+## 3. Adobe Firefly
+IA integrada aos produtos Adobe para designers.
+
+## 4. Runway ML
+Edição de vídeo com IA e efeitos especiais.
+
+## 5. Canva AI
+Design gráfico simplificado com assistência de IA.
+
+E muitas outras ferramentas revolucionárias...
+        `,
+        excerpt: 'Uma lista abrangente das melhores ferramentas de IA disponíveis para criadores de conteúdo, designers e artistas.',
+        featuredImage: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800',
+        categoryId: categories[1].id,
+        authorName: 'CriativeIA Team',
+        isPublished: true,
+        isFeatured: false,
+        readTime: 12,
+        views: 892,
+        likes: 67,
+        tags: ['Ferramentas', 'IA', 'Produtividade', 'Design']
+      },
+      {
+        title: 'Automatizando seu Fluxo Criativo com IA',
+        slug: 'automatizando-fluxo-criativo-ia',
+        content: `
+# Automatizando seu Fluxo Criativo com IA
+
+A automação não é o inimigo da criatividade - é seu melhor aliado. Aprenda como integrar IA em seu processo criativo para maximizar sua produtividade.
+
+## Por Que Automatizar?
+
+- **Foco no que importa**: Deixe tarefas repetitivas para a IA
+- **Mais tempo para criação**: Automatize pesquisa e organização
+- **Consistência**: Mantenha padrões de qualidade
+
+## Estratégias de Automação
+
+1. **Pesquisa automatizada**: Use IA para coletar referências
+2. **Geração de ideias**: Brainstorming assistido
+3. **Otimização de conteúdo**: SEO e adaptação automática
+        `,
+        excerpt: 'Descubra como automatizar partes do seu processo criativo sem perder a essência humana do seu trabalho.',
+        featuredImage: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800',
+        categoryId: categories[2].id,
+        authorName: 'CriativeIA Team',
+        isPublished: true,
+        isFeatured: false,
+        readTime: 6,
+        views: 543,
+        likes: 34,
+        tags: ['Automação', 'Produtividade', 'Workflow', 'IA']
+      }
+    ];
+
+    for (const post of samplePosts) {
+      await this.createPost(post);
     }
 
     console.log('✅ Dados iniciais carregados na memória!');
+    console.log(`📝 ${samplePosts.length} posts criados`);
+    console.log(`📁 ${categories.length} categorias criadas`);
+    console.log(`👤 1 usuário admin criado`);
   }
 }
