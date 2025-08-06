@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <div className="px-4">
                 <h1 className="text-xl font-bold text-foreground">Lingua Lore Admin</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {user?.email} ({userRole})
+                  {(user as any)?.email || 'Admin'} ({userRole})
                 </p>
               </div>
               <nav className="mt-8 flex-1 px-4 space-y-1">

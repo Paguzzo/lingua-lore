@@ -28,8 +28,8 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 }
 
 // Default query function for React Query
-export const defaultQueryFn = async ({ queryKey }: { queryKey: string[] }) => {
-  const [url] = queryKey;
+export const defaultQueryFn = async (context: any) => {
+  const [url] = context.queryKey;
   return apiRequest(url);
 };
 

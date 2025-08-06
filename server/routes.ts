@@ -172,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(post);
     } catch (error) {
       console.error("Error creating post:", error);
-      res.status(400).json({ error: "Failed to create post", details: error.message });
+      res.status(400).json({ error: "Failed to create post", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -196,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(post);
     } catch (error) {
       console.error("Error updating post:", error);
-      res.status(400).json({ error: "Failed to update post", details: error.message });
+      res.status(400).json({ error: "Failed to update post", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -220,7 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(post);
     } catch (error) {
       console.error("Error updating post:", error);
-      res.status(400).json({ error: "Failed to update post", details: error.message });
+      res.status(400).json({ error: "Failed to update post", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 

@@ -144,7 +144,7 @@ export default function PostEditor() {
   };
 
   const savePostMutation = useMutation({
-    mutationFn: async (publish = false) => {
+    mutationFn: async (publish: boolean = false) => {
       if (!postData.title.trim() || !postData.content.trim()) {
         throw new Error('Título e conteúdo são obrigatórios.');
       }
@@ -152,7 +152,7 @@ export default function PostEditor() {
       const saveData = {
         ...postData,
         isPublished: publish || postData.isPublished,
-        authorName: user?.email?.split('@')[0] || 'Admin',
+        authorName: user?.username || 'Admin',
         publishedAt: publish && !id ? new Date().toISOString() : undefined,
       };
 
@@ -168,7 +168,7 @@ export default function PostEditor() {
         });
       }
     },
-    onSuccess: (_, publish) => {
+    onSuccess: (_, publish: boolean) => {
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       toast({
         title: publish ? 'Artigo publicado' : 'Artigo salvo',
@@ -185,7 +185,7 @@ export default function PostEditor() {
     }
   });
 
-  const handleSave = (publish = false) => {
+  const handleSave = (publish: boolean = false) => {
     if (!postData.title.trim()) {
       toast({
         title: 'Erro de validação',

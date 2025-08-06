@@ -4,6 +4,7 @@ import { apiRequest } from '@/lib/queryClient';
 interface User {
   id: number;
   username: string;
+  email?: string;
 }
 
 interface AuthContextType {
