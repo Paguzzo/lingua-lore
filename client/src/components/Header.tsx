@@ -42,13 +42,13 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {categories.map((category) => (
-              <a
+              <Link
                 key={category.slug}
-                href={`/category/${category.slug}`}
+                to={`/category/${category.slug}`}
                 className="text-foreground hover:text-primary transition-colors font-medium"
               >
                 {category.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -101,14 +101,14 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
               {categories.map((category) => (
-                <a
+                <Link
                   key={category.slug}
-                  href={`/category/${category.slug}`}
+                  to={`/category/${category.slug}`}
                   className="text-foreground hover:text-primary transition-colors font-medium py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {category.name}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>
