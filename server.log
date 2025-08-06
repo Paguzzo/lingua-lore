@@ -1,10 +1,16 @@
 nohup: ignoring input
+
+> rest-express@1.0.0 dev-local
+> NODE_ENV=development PORT=3000 HOST=0.0.0.0 tsx server/index.ts
+
 ✅ Dados iniciais carregados na memória!
 📝 3 posts criados
 📁 4 categorias criadas
 👤 1 usuário admin criado
-6:50:30 PM [express] serving on port 5000
+7:00:38 PM [express] 🚀 Server running at http://localhost:3000
+7:00:38 PM [express] 🌐 Also try: http://127.0.0.1:3000
+7:00:38 PM [express] 💻 Network access: http://0.0.0.0:3000
+7:00:47 PM [express] GET /api/posts 200 in 3ms :: [{"id":"8q5v9x551wime0c2l0w","title":"Como a IA es…
 Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
   npx update-browserslist-db@latest
   Why you should do it regularly: https://github.com/browserslist/update-db#readme
-6:50:44 PM [express] GET /api/posts 200 in 2ms :: [{"id":"fi3pg8g0x36me0bpjez","title":"Como a IA es…
