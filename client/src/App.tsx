@@ -17,6 +17,7 @@ import Users from "./pages/admin/Users";
 import Settings from "./pages/admin/Settings";
 import Post from "./pages/Post";
 import NotFound from "./pages/NotFound";
+import TestPage from "./pages/TestPage";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -26,7 +27,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} index />
+            <Route path="/" element={<TestPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/post/:slug" element={<Post />} />
 
