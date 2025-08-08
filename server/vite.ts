@@ -25,14 +25,23 @@ export async function setupVite(app: Express, server: Server) {
     hmr: { server },
   };
 
+  // Resolve the user Vite config (vite.config.ts exports a function)
+  const resolvedConfig =
+    typeof (viteConfig as any) === "function"
+      ? await (viteConfig as any)({
+          mode: process.env.NODE_ENV || "development",
+          command: "serve",
+        })
+      : (viteConfig as any);
+
   const vite = await createViteServer({
-    ...viteConfig,
+    ...resolvedConfig,
     configFile: false,
     customLogger: {
       ...viteLogger,
+      // Don't kill the process on error; surface it in logs so preview can report it
       error: (msg, options) => {
         viteLogger.error(msg, options);
-        process.exit(1);
       },
     },
     server: serverOptions,

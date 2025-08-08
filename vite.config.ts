@@ -19,7 +19,7 @@ export default defineConfig(async ({ mode }) => ({
       : []),
   ].filter(Boolean),
   server: {
-    port: 5000
+    port: 8080
   },
   resolve: {
     alias: {
