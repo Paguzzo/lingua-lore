@@ -1,10 +1,13 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import react from "@vitejs/plugin-react";
 import { nanoid } from "nanoid";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const viteLogger = createLogger();
 
@@ -25,16 +28,16 @@ export async function setupVite(app: Express, server: Server) {
     hmr: { server },
   };
 
-  const rootDir = path.resolve(import.meta.dirname, "..", "client");
+  const rootDir = path.resolve(__dirname, "..", "client");
 
   const vite = await createViteServer({
     root: rootDir,
     plugins: [react()],
     resolve: {
       alias: {
-        "@": path.resolve(import.meta.dirname, "..", "client", "src"),
-        "@shared": path.resolve(import.meta.dirname, "..", "shared"),
-        "@assets": path.resolve(import.meta.dirname, "..", "attached_assets"),
+        "@": path.resolve(__dirname, "..", "client", "src"),
+        "@shared": path.resolve(__dirname, "..", "shared"),
+        "@assets": path.resolve(__dirname, "..", "attached_assets"),
       },
     },
     configFile: false,
@@ -55,7 +58,7 @@ export async function setupVite(app: Express, server: Server) {
 
     try {
       const clientTemplate = path.resolve(
-        import.meta.dirname,
+        __dirname,
         "..",
         "client",
         "index.html",
@@ -77,7 +80,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(__dirname, "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
