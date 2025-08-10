@@ -1,10 +1,10 @@
-import { IStorage } from "./storage";
+import type { IStorage } from "./storage";
 import {
   type User, type InsertUser, type Post, type InsertPost, type Category, type InsertCategory,
   type Profile, type InsertProfile, type Media, type InsertMedia, type AffiliateLink, type InsertAffiliateLink,
   type Cta, type InsertCta, type Analytics, type InsertAnalytics, type SiteSetting, type InsertSiteSetting,
   type Webhook, type InsertWebhook
-} from "@shared/schema";
+} from "../shared/schema";
 
 // In-memory storage for development
 export class MemoryStorage implements IStorage {

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { IStorage } from "./storage";
-import { insertCategorySchema, insertPostSchema, insertProfileSchema, insertUserSchema } from "@shared/schema";
+import { insertCategorySchema, insertPostSchema, insertProfileSchema, insertUserSchema } from "../shared/schema";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
