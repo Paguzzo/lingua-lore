@@ -1,4 +1,4 @@
-import type { IStorage } from "./storage";
+import type { IStorage, Subscriber, InsertSubscriber } from "./storage";
 import {
   type User, type InsertUser, type Post, type InsertPost, type Category, type InsertCategory,
   type Profile, type InsertProfile, type Media, type InsertMedia, type AffiliateLink, type InsertAffiliateLink,
@@ -107,9 +107,38 @@ export class MemoryStorage implements IStorage {
     return true;
   }
 
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    return this.categories.find(c => c.slug === slug);
+  }
+
   // Post management
-  async getPosts(): Promise<Post[]> {
-    return [...this.posts].sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+  async getPosts(options: { published?: boolean, featured?: boolean, limit?: number, offset?: number, "author.id"?: number, categoryId?: string } = {}): Promise<Post[]> {
+    let filteredPosts = [...this.posts];
+
+    if (options.published !== undefined) {
+      filteredPosts = filteredPosts.filter(p => p.isPublished === options.published);
+    }
+    
+    if (options.featured !== undefined) {
+      filteredPosts = filteredPosts.filter(p => p.isFeatured === options.featured);
+    }
+
+    if (options.categoryId) {
+      filteredPosts = filteredPosts.filter(p => p.categoryId === options.categoryId);
+    }
+
+    // Sorting should be consistent
+    filteredPosts.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+
+    if (options.offset) {
+      filteredPosts = filteredPosts.slice(options.offset);
+    }
+
+    if (options.limit) {
+      filteredPosts = filteredPosts.slice(0, options.limit);
+    }
+
+    return filteredPosts;
   }
 
   async getPublishedPosts(): Promise<Post[]> {
@@ -174,6 +203,25 @@ export class MemoryStorage implements IStorage {
     
     this.posts.splice(index, 1);
     return true;
+  }
+
+  async searchPosts(query: string): Promise<Post[]> {
+    // Se a consulta estiver vazia, retornar todos os posts publicados
+    if (!query || query.trim() === '') {
+      return this.posts
+        .filter(p => p.isPublished)
+        .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+    }
+    
+    return this.posts
+      .filter(p => 
+        p.isPublished && (
+          p.title.toLowerCase().includes(query.toLowerCase()) ||
+          p.content.toLowerCase().includes(query.toLowerCase()) ||
+          (p.excerpt && p.excerpt.toLowerCase().includes(query.toLowerCase()))
+        )
+      )
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
   }
 
   // Media management
@@ -381,44 +429,93 @@ export class MemoryStorage implements IStorage {
     return true;
   }
 
+  // Subscribers
+  private subscribers: Subscriber[] = [];
+
+  async getSubscribers(): Promise<Subscriber[]> {
+    return [...this.subscribers];
+  }
+
+  async getSubscriber(id: string): Promise<Subscriber | undefined> {
+    return this.subscribers.find(s => s.id === id);
+  }
+
+  async getSubscriberByEmail(email: string): Promise<Subscriber | undefined> {
+    return this.subscribers.find(s => s.email === email);
+  }
+
+  async createSubscriber(subscriber: InsertSubscriber): Promise<Subscriber> {
+    const newSubscriber: Subscriber = {
+      id: this.generateId(),
+      email: subscriber.email,
+      name: subscriber.name || undefined,
+      isActive: subscriber.isActive !== undefined ? subscriber.isActive : true,
+      source: subscriber.source || 'website',
+      subscribedAt: new Date(),
+      emailVerified: subscriber.emailVerified !== undefined ? subscriber.emailVerified : false,
+      verificationToken: subscriber.verificationToken,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.subscribers.push(newSubscriber);
+    return newSubscriber;
+  }
+
+  async updateSubscriber(id: string, subscriber: Partial<InsertSubscriber>): Promise<Subscriber | undefined> {
+    const index = this.subscribers.findIndex(s => s.id === id);
+    if (index === -1) return undefined;
+    
+    this.subscribers[index] = { ...this.subscribers[index], ...subscriber, updatedAt: new Date() };
+    return this.subscribers[index];
+  }
+
+  async deleteSubscriber(id: string): Promise<boolean> {
+    const index = this.subscribers.findIndex(s => s.id === id);
+    if (index === -1) return false;
+    
+    this.subscribers.splice(index, 1);
+    return true;
+  }
+
   // Initialize with default data
   async initialize() {
-    // Create default categories
+    // Limpar usuários existentes para garantir apenas o admin especificado
+    this.users = [];
+    
+    // Create default categories only if they don't exist
     const defaultCategories = [
       {
-        name: 'Idiomas',
-        slug: 'idiomas',
-        color: '#3B82F6',
-        description: 'Artigos sobre aprendizagem de idiomas'
-      },
-      {
-        name: 'Cultura',
-        slug: 'cultura',
+        name: 'IA Criativa',
+        slug: 'ia-criativa',
         color: '#8B5CF6',
-        description: 'Exploração de culturas ao redor do mundo'
+        description: 'Inteligência artificial aplicada à criatividade'
       },
       {
-        name: 'Dicas de Estudo',
-        slug: 'dicas-estudo',
+        name: 'Ferramentas',
+        slug: 'ferramentas',
+        color: '#3B82F6',
+        description: 'Ferramentas e recursos para criadores'
+      },
+      {
+        name: 'Automação',
+        slug: 'automacao',
         color: '#10B981',
-        description: 'Métodos e técnicas de estudo'
+        description: 'Automação de processos e workflows'
       },
       {
-        name: 'Gramática',
-        slug: 'gramatica',
+        name: 'Tutoriais',
+        slug: 'tutoriais',
         color: '#F59E0B',
-        description: 'Explicações gramaticais claras'
-      },
-      {
-        name: 'Viagem',
-        slug: 'viagem',
-        color: '#EF4444',
-        description: 'Guias e dicas para viajantes'
+        description: 'Guias e tutoriais passo a passo'
       }
     ];
 
     for (const cat of defaultCategories) {
-      await this.createCategory(cat);
+      // Verificar se a categoria já existe antes de criar
+      const existingCategory = await this.getCategoryBySlug(cat.slug);
+      if (!existingCategory) {
+        await this.createCategory(cat);
+      }
     }
 
     console.log('✅ Dados iniciais carregados na memória!');

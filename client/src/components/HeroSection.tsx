@@ -1,23 +1,86 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User } from "lucide-react";
+import { Clock, User, Globe } from "lucide-react";
+import { useTranslation } from 'react-i18next';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const HeroSection = () => {
+  const { i18n, t } = useTranslation();
+  const language = i18n.language;
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+
+  const getLanguageFlag = (lang: string) => {
+    const flags = {
+      pt: '🇧🇷',
+      es: '🇪🇸', 
+      en: '🇺🇸'
+    };
+    return flags[lang as keyof typeof flags] || '🌐';
+  };
+
   // Featured post data
   const featuredPost = {
     id: 1,
-    title: "CriativeIA: O Futuro da Criação de Conteúdo Inteligente",
-    excerpt: "Explore como nossa plataforma revoluciona a criação de conteúdo combinando inteligência artificial com criatividade humana para resultados extraordinários.",
-    author: "Equipe CriativeIA",
+    title: t('hero.title'),
+    excerpt: t('hero.excerpt'),
+    author: t('hero.author'),
     publishedAt: "2024-01-15",
     readTime: "7 min",
-    category: "IA & Criatividade",
+    category: t('hero.category'),
     imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&h=600",
     slug: "criativeIA-futuro-criacao-conteudo-inteligente"
   };
 
   return (
-    <section className="bg-gradient-hero py-16 lg:py-24">
+    <section className="bg-gradient-hero py-16 lg:py-24 relative">
+      {/* Language Selector - Floating */}
+      <div className="absolute top-6 right-6 z-10">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="bg-white/90 backdrop-blur-sm border-white/20 hover:bg-white/95 transition-all duration-200 shadow-lg"
+            >
+              <Globe className="h-4 w-4 mr-2" />
+              <span className="text-lg mr-1">{getLanguageFlag(language)}</span>
+              <span className="font-medium">{language.toUpperCase()}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm">
+            <DropdownMenuItem 
+              onClick={() => changeLanguage("pt")}
+              className={`cursor-pointer ${language === "pt" ? "bg-primary/10" : ""}`}
+            >
+              <span className="text-lg mr-2">🇧🇷</span>
+              <span className={`${language === "pt" ? "font-bold" : ""}`}>Português</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => changeLanguage("es")}
+              className={`cursor-pointer ${language === "es" ? "bg-primary/10" : ""}`}
+            >
+              <span className="text-lg mr-2">🇪🇸</span>
+              <span className={`${language === "es" ? "font-bold" : ""}`}>Español</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => changeLanguage("en")}
+              className={`cursor-pointer ${language === "en" ? "bg-primary/10" : ""}`}
+            >
+              <span className="text-lg mr-2">🇺🇸</span>
+              <span className={`${language === "en" ? "font-bold" : ""}`}>English</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
@@ -41,12 +104,12 @@ const HeroSection = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4" />
-                <span>{featuredPost.readTime} de leitura</span>
+                <span>{featuredPost.readTime} {t('hero.readTimeSuffix')}</span>
               </div>
             </div>
             
             <Button size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
-              Ler Artigo Completo
+              {t('hero.readFullArticle')}
             </Button>
           </div>
 
@@ -65,7 +128,7 @@ const HeroSection = () => {
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-sm font-medium text-foreground">
-                  Artigo em Destaque
+                  {t('hero.featuredArticle')}
                 </span>
               </div>
             </div>

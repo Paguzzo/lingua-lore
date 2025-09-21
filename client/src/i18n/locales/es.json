@@ -1,0 +1,120 @@
+{
+  "header": {
+    "logoName": "CriativeIA",
+    "logoSubtitle": "Powered by AI",
+    "home": "Inicio",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "search": "Buscar",
+    "login": "Iniciar sesión",
+    "admin": "Admin",
+    "selectLanguage": "Seleccionar idioma"
+  },
+  "categories": {
+    "iaCriativa": "IA Creativa",
+    "ferramentas": "Herramientas",
+    "automacao": "Automatización",
+    "tutoriais": "Tutoriales"
+  },
+  "footer": {
+    "logoName": "Lingua Lore",
+    "description": "Tu blog de IA y tecnología.",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "privacyPolicy": "Política de Privacidad",
+    "copyright": "CriativeIA. Todos los derechos reservados."
+  },
+  "hero": {
+    "title": "CriativeIA: El Futuro de la Creación de Contenido Inteligente",
+    "excerpt": "Explore cómo nuestra plataforma revoluciona la creación de contenido combinando inteligencia artificial con creatividad humana para resultados extraordinarios.",
+    "author": "Equipo CriativeIA",
+    "category": "IA y Creatividad",
+    "readTimeSuffix": "min de lectura",
+    "readFullArticle": "Leer Artículo Completo",
+    "featuredArticle": "Artículo Destacado"
+  },
+  "seo": {
+    "defaultTitle": "CriativeIA - Inteligencia Creativa para el Futuro",
+    "defaultDescription": "Explora el futuro de la creación de contenido con CriativeIA. Combinamos inteligencia artificial con creatividad humana para resultados extraordinarios.",
+    "defaultKeywords": "inteligencia artificial, IA, creatividad, contenido, automatización, herramientas IA, blog, tecnología",
+    "siteName": "CriativeIA"
+  },
+  "postsGrid": {
+    "recentArticles": "Artículos Recientes",
+    "noPostsYet": "Aún no hay publicaciones.",
+    "featuredPost": "Publicación Destacada",
+    "popularPosts": "Publicaciones Populares"
+  },
+  "sidebar": {
+    "newsletter": {
+      "errorSubscription": "Error al suscribirse al boletín",
+      "successTitle": "¡Suscripción exitosa!",
+      "successDescription": "Recibirás un correo electrónico de confirmación en breve.",
+      "errorTitle": "Error de suscripción",
+      "title": "Boletín",
+      "description": "Recibe las últimas noticias sobre IA y tecnología directamente en tu correo electrónico.",
+      "placeholderEmail": "Tu correo electrónico",
+      "submitting": "Enviando...",
+      "subscribe": "Suscribirse"
+    },
+    "popularArticles": {
+      "article1": {
+        "title": "10 Herramientas de IA que todo creador debería conocer",
+        "excerpt": "Descubre las mejores herramientas de inteligencia artificial...",
+        "author": "Equipo CriativeIA",
+        "readTime": "5 min",
+        "category": "Herramientas de IA"
+      },
+      "article2": {
+        "title": "ChatGPT vs Claude: ¿Qué IA elegir para tu proyecto?",
+        "excerpt": "Comparamos las principales herramientas de IA disponibles...",
+        "author": "Carlos Oliveira",
+        "readTime": "7 min",
+        "category": "Herramientas de IA"
+      }
+    },
+    "advertisement": "PUBLICIDAD",
+    "googleAdsSpace": "Espacio para Google Ads",
+    "popularPosts": "Publicaciones Populares",
+    "followUs": "Síguenos",
+    "socialMedia": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "youtube": "YouTube",
+      "instagram": "Instagram"
+    }
+  },
+  "pages": {
+    "about": {
+      "title": "Acerca de Nosotros",
+      "description": "Conoce nuestra misión y equipo"
+    },
+    "contact": {
+      "title": "Contacto",
+      "description": "Ponte en contacto con nosotros"
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "description": "Nuestra política de privacidad"
+    },
+    "terms": {
+      "title": "Términos de Uso",
+      "description": "Términos y condiciones de uso"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "readMore": "Leer más",
+    "showLess": "Mostrar menos"
+  }
+}

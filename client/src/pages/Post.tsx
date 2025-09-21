@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { ArrowLeft, Clock, Calendar, Share2, Facebook, Twitter, Linkedin, MessageCircle, Mail, Phone, Send } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Share2, Facebook, Twitter, Linkedin, MessageCircle, Mail, Phone, Send, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -10,8 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PostCard from '@/components/PostCard';
+import { extractYouTubeVideoId, getYouTubeEmbedUrl } from '@/lib/youtube';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import SEO from '@/components/SEO';
+import { validateAndFixImageUrl } from '@/lib/imageUtils';
 
 interface Post {
   id: string;
@@ -19,22 +23,33 @@ interface Post {
   content: string;
   excerpt: string;
   featuredImage: string;
+  videoUrl?: string;
   isPublished: boolean;
   createdAt: string;
   publishedAt: string;
   authorName: string;
   readTime: number;
-  categories?: { name: string; color: string };
+  category?: { name: string; color: string };
 }
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>();
+  const { trackPageView } = useAnalytics();
 
-  const { data: post, isLoading } = useQuery<Post>({
+  const { data, isLoading } = useQuery({
     queryKey: ['/api/posts/slug', slug],
     queryFn: () => apiRequest(`/api/posts/slug/${slug}`),
     enabled: !!slug,
   });
+  
+  const post = data?.post;
+
+  // Track page view when post is loaded
+  useEffect(() => {
+    if (post?.id) {
+      trackPageView(post.id);
+    }
+  }, [post?.id, trackPageView]);
 
   const shareUrl = window.location.href;
   const shareTitle = post?.title || '';
@@ -80,14 +95,22 @@ export default function Post() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section with Background Image */}
-      <div className="relative h-80 overflow-hidden bg-gradient-to-r from-blue-900 to-purple-900">
-        {/* Blurred Background */}
-        <div
-          className="absolute inset-0 bg-cover bg-center filter blur-sm scale-110 opacity-30"
-          style={{ backgroundImage: `url(${post.featuredImage})` }}
-        />
-        <div className="absolute inset-0 bg-black/40" />
+      <SEO 
+        title={`${post.title} - CriativeIA`}
+        description={post.excerpt || (post.content ? post.content.substring(0, 160) : '')}
+        image={validateAndFixImageUrl(post.featuredImage, post.title)}
+        url={shareUrl}
+        type="article"
+        author={post.authorName}
+        publishedTime={post.publishedAt || post.createdAt}
+        modifiedTime={post.createdAt}
+        section={post.category?.name}
+        tags={post.category ? [post.category.name] : undefined}
+      />
+      {/* Hero Section with Blue Background */}
+      <div className="relative h-80 overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900">
+        {/* Blue gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-800/90 to-purple-900/90" />
 
         {/* Content */}
         <div className="relative z-10 h-full flex items-center px-4">
@@ -98,14 +121,14 @@ export default function Post() {
             </Button>
           </Link>
 
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center w-full">
-            {/* Title and Meta on the left */}
-            <div className="text-white">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+          <div className="max-w-6xl mx-auto w-full">
+            {/* Title and Meta centered */}
+            <div className="text-white text-center">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight max-w-4xl mx-auto">
                 {post.title}
               </h1>
 
-              <div className="flex items-center gap-6 text-sm text-white/80 mb-6">
+              <div className="flex items-center justify-center gap-6 text-sm text-white/80 mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>
@@ -121,24 +144,17 @@ export default function Post() {
                 </div>
               </div>
 
-              {post.categories && (
-                <Badge
-                  variant="outline"
-                  style={{ borderColor: post.categories.color, color: post.categories.color }}
-                  className="text-sm bg-white/10"
-                >
-                  {post.categories.name}
-                </Badge>
+              {post.category && (
+                <div className="flex justify-center">
+                  <Badge
+                    variant="outline"
+                    style={{ borderColor: post.category.color, color: post.category.color }}
+                    className="text-sm bg-white/10"
+                  >
+                    {post.category.name}
+                  </Badge>
+                </div>
               )}
-            </div>
-
-            {/* Featured Image on the right */}
-            <div className="flex justify-center lg:justify-end">
-              <img
-                src={post.featuredImage}
-                alt={post.title}
-                className="max-w-xs md:max-w-sm lg:max-w-md rounded-lg shadow-2xl"
-              />
             </div>
           </div>
         </div>
@@ -193,36 +209,49 @@ export default function Post() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <article className="prose prose-lg max-w-none">
+              {/* Featured Image/Video at the start of the article */}
               <div className="mb-8">
-                <img
-                  src={post.featuredImage}
-                  alt={post.title}
-                  className="w-full h-64 object-cover rounded-xl"
-                />
+                {post.videoUrl && extractYouTubeVideoId(post.videoUrl) ? (
+                  <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg">
+                    <iframe
+                      src={getYouTubeEmbedUrl(extractYouTubeVideoId(post.videoUrl)!)}
+                      title={post.title}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src={validateAndFixImageUrl(post.featuredImage, post.title)}
+                    alt={post.title}
+                    className="w-full h-80 object-cover rounded-xl shadow-lg"
+                  />
+                )}
               </div>
 
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <h1 className="text-4xl font-bold text-foreground">{post.title}</h1>
-
-                  <div className="flex items-center space-x-6 text-muted-foreground">
+                {/* Article meta info */}
+                <div className="space-y-4 pb-6 border-b border-border">
+                  <div className="flex items-center space-x-6 text-muted-foreground text-sm">
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm">Por {post.authorName}</span>
+                      <span>Por {post.authorName}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4" />
-                      <span className="text-sm">
+                      <span>
                         {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4" />
-                      <span className="text-sm">{post.readTime} min de leitura</span>
+                      <span>{post.readTime} min de leitura</span>
                     </div>
                   </div>
 
                   {post.excerpt && (
-                    <p className="text-xl text-muted-foreground leading-relaxed">
+                    <p className="text-lg text-muted-foreground leading-relaxed italic border-l-4 border-primary pl-4">
                       {post.excerpt}
                     </p>
                   )}
@@ -237,8 +266,9 @@ export default function Post() {
                   </p>
                 </div>
 
+                {/* Article content */}
                 <div
-                  className="prose-content"
+                  className="post-content"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
 
@@ -299,7 +329,7 @@ function ContactSection() {
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Aqui você implementaria o envio do formulário
-    console.log('Contact form:', contactForm);
+    // Processing contact form
     setContactForm({ name: '', email: '', message: '' });
   };
 
@@ -386,10 +416,21 @@ function ContactSection() {
 
 // Related Articles Component
 function RelatedArticles({ currentPostId }: { currentPostId: string }) {
-  const { data: relatedPosts = [] } = useQuery({
+  interface PostsResponse {
+    posts: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+    };
+  }
+
+  const { data: relatedData } = useQuery<PostsResponse>({
     queryKey: ['/api/posts/related', currentPostId],
     queryFn: () => apiRequest(`/api/posts?published=true&limit=3&exclude=${currentPostId}`),
   });
+  
+  const relatedPosts = relatedData?.posts || [];
 
   if (relatedPosts.length === 0) return null;
 
@@ -408,8 +449,8 @@ function RelatedArticles({ currentPostId }: { currentPostId: string }) {
               author: post.authorName,
               publishedAt: post.publishedAt,
               readTime: `${post.readTime} min`,
-              category: post.categories?.name || 'Geral',
-              imageUrl: post.featuredImage || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&h=400',
+              category: post.category?.name || 'Geral',
+              imageUrl: validateAndFixImageUrl(post.featuredImage, post.title),
               slug: post.slug
             }}
           />

@@ -2,10 +2,19 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import PostsGrid from "@/components/PostsGrid";
 import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
+import SEO from '@/components/SEO';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="CriativeIA - Blog de Inteligência Artificial e Tecnologia"
+        description="Descubra as últimas tendências em IA, tutoriais práticos e insights sobre tecnologia. Conteúdo especializado para desenvolvedores e entusiastas de inteligência artificial."
+        keywords={['inteligência artificial', 'IA', 'tecnologia', 'blog', 'tutoriais', 'machine learning', 'deep learning', 'programação']}
+        url={window.location.href}
+        type="website"
+      />
       <Header />
       <HeroSection />
       
@@ -23,17 +32,7 @@ const Index = () => {
         </div>
       </main>
       
-      {/* Footer */}
-      <footer className="bg-gradient-to-r from-purple-50 to-cyan-50 dark:from-purple-950 dark:to-cyan-950 py-8 mt-16">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground">
-            © 2024 <span className="font-semibold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">CriativeIA</span>. Todos os direitos reservados.
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Impulsionando a criatividade com Inteligência Artificial
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

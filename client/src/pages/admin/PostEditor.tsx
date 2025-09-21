@@ -15,6 +15,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save, Eye, Globe, Search, Image, Link } from 'lucide-react';
+import { AIButton } from '@/components/AIButton';
+import { ImageUpload } from '@/components/ImageUpload';
+import { FeaturedImageUpload } from '@/components/FeaturedImageUpload';
 
 interface Category {
   id: string;
@@ -29,6 +32,7 @@ interface PostData {
   content: string;
   excerpt: string;
   featuredImage: string;
+  videoUrl?: string;
   categoryId: string;
   isPublished: boolean;
   isFeatured: boolean;
@@ -53,6 +57,7 @@ export default function PostEditor() {
     content: '',
     excerpt: '',
     featuredImage: '',
+    videoUrl: '',
     categoryId: '',
     isPublished: false,
     isFeatured: false,
@@ -68,21 +73,27 @@ export default function PostEditor() {
   const [selectedText, setSelectedText] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [showImageDialog, setShowImageDialog] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageAlt, setImageAlt] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useQuery<Category[]>({
+  // Buscar categorias do backend
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
     queryKey: ['/api/categories'],
-    retry: 3,
+    queryFn: () => apiRequest('/api/categories'),
   });
+  
+  const categories = categoriesData?.categories || [];
+  
 
-  if (categoriesError) {
-    console.error('Error loading categories:', categoriesError);
-  }
-
-  const { data: post, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['/api/posts', id],
     queryFn: () => apiRequest(`/api/posts/${id}`),
     enabled: !!id,
   });
+
+  const post = data?.post;
 
   useEffect(() => {
     if (post) {
@@ -92,6 +103,7 @@ export default function PostEditor() {
         content: post.content || '',
         excerpt: post.excerpt || '',
         featuredImage: post.featuredImage || '',
+        videoUrl: post.videoUrl || '',
         categoryId: post.categoryId || '',
         isPublished: post.isPublished || false,
         isFeatured: post.isFeatured || false,
@@ -105,6 +117,16 @@ export default function PostEditor() {
       });
     }
   }, [post]);
+  
+  // Atualiza o selectedCategory quando o categoryId muda
+  useEffect(() => {
+    if (postData.categoryId && categories.length > 0) {
+      const category = categories.find(cat => cat.id === postData.categoryId);
+      setSelectedCategory(category || null);
+    } else {
+      setSelectedCategory(null);
+    }
+  }, [postData.categoryId, categories]);
 
   const generateSlug = (title: string) => {
     return title
@@ -121,6 +143,138 @@ export default function PostEditor() {
     const wordsPerMinute = 200;
     const words = content.trim().split(/\s+/).length;
     return Math.ceil(words / wordsPerMinute) || 1;
+  };
+
+  // Função para converter quebras de linha em parágrafos HTML
+  const formatContentForHTML = (content: string): string => {
+    if (!content) return '';
+
+    // Se o conteúdo já tem tags HTML, retornar como está
+    if (content.includes('<') && content.includes('>')) {
+      return content;
+    }
+
+    // Dividir o conteúdo por linhas para processar cada uma
+    const lines = content.split('\n');
+    const processedLines = [];
+    let inBulletList = false;
+    let inNumberedList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Linha vazia - criar espaçamento e fechar listas se abertas
+      if (line === '') {
+        if (inBulletList) {
+          processedLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (inNumberedList) {
+          processedLines.push('</ol>');
+          inNumberedList = false;
+        }
+        processedLines.push('<div style="margin: 1rem 0;"></div>');
+        continue;
+      }
+
+      // Títulos H1 (#)
+      if (line.startsWith('# ')) {
+        if (inBulletList) {
+          processedLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (inNumberedList) {
+          processedLines.push('</ol>');
+          inNumberedList = false;
+        }
+        const title = line.substring(2).trim();
+        processedLines.push(`<h1 style="font-size: 2rem; font-weight: bold; margin: 2rem 0 1rem 0; line-height: 1.2; color: inherit;">${title}</h1>`);
+        continue;
+      }
+
+      // Títulos H2 (##)
+      if (line.startsWith('## ')) {
+        if (inBulletList) {
+          processedLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (inNumberedList) {
+          processedLines.push('</ol>');
+          inNumberedList = false;
+        }
+        const title = line.substring(3).trim();
+        processedLines.push(`<h2 style="font-size: 1.5rem; font-weight: bold; margin: 1.5rem 0 1rem 0; line-height: 1.3; color: inherit;">${title}</h2>`);
+        continue;
+      }
+
+      // Títulos H3 (###)
+      if (line.startsWith('### ')) {
+        if (inBulletList) {
+          processedLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (inNumberedList) {
+          processedLines.push('</ol>');
+          inNumberedList = false;
+        }
+        const title = line.substring(4).trim();
+        processedLines.push(`<h3 style="font-size: 1.25rem; font-weight: bold; margin: 1.25rem 0 0.75rem 0; line-height: 1.4; color: inherit;">${title}</h3>`);
+        continue;
+      }
+
+      // Lista com marcadores (-)
+      if (line.startsWith('- ')) {
+        if (inNumberedList) {
+          processedLines.push('</ol>');
+          inNumberedList = false;
+        }
+        if (!inBulletList) {
+          processedLines.push('<ul style="margin: 1rem 0; padding-left: 1.5rem;">');
+          inBulletList = true;
+        }
+        const listItem = line.substring(2).trim();
+        processedLines.push(`<li style="margin: 0.5rem 0; line-height: 1.6;">${listItem}</li>`);
+        continue;
+      }
+
+      // Lista numerada (1. 2. etc)
+      if (/^\d+\.\s/.test(line)) {
+        if (inBulletList) {
+          processedLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (!inNumberedList) {
+          processedLines.push('<ol style="margin: 1rem 0; padding-left: 1.5rem;">');
+          inNumberedList = true;
+        }
+        const listItem = line.replace(/^\d+\.\s/, '').trim();
+        processedLines.push(`<li style="margin: 0.5rem 0; line-height: 1.6;">${listItem}</li>`);
+        continue;
+      }
+
+      // Parágrafo normal
+      if (line) {
+        if (inBulletList) {
+          processedLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (inNumberedList) {
+          processedLines.push('</ol>');
+          inNumberedList = false;
+        }
+        processedLines.push(`<p style="margin: 1rem 0; line-height: 1.7; color: inherit;">${line}</p>`);
+      }
+    }
+
+    // Fechar listas se ainda estiverem abertas no final
+    if (inBulletList) {
+      processedLines.push('</ul>');
+    }
+    if (inNumberedList) {
+      processedLines.push('</ol>');
+    }
+
+    return processedLines.join('\n');
   };
 
   const handleTitleChange = (title: string) => {
@@ -151,6 +305,7 @@ export default function PostEditor() {
 
       const saveData = {
         ...postData,
+        content: formatContentForHTML(postData.content),
         isPublished: publish || postData.isPublished,
         authorName: user?.username || 'Admin',
         publishedAt: publish && !id ? new Date().toISOString() : undefined,
@@ -168,13 +323,21 @@ export default function PostEditor() {
         });
       }
     },
-    onSuccess: (_, publish: boolean) => {
+    onSuccess: (response: any, publish: boolean) => {
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       toast({
         title: publish ? 'Artigo publicado' : 'Artigo salvo',
         description: `O artigo foi ${publish ? 'publicado' : 'salvo como rascunho'} com sucesso.`,
       });
-      navigate('/admin/posts');
+
+      // Se for um novo post e foi salvo, navegar para edição
+      if (!id && response?.post?.id && !publish) {
+        navigate(`/admin/posts/${response.post.id}/edit`);
+      } else if (publish) {
+        // Só redireciona se foi publicado
+        navigate('/admin/posts');
+      }
+      // Se for edição de post existente e salvando rascunho, fica na página
     },
     onError: (error: any) => {
       toast({
@@ -250,6 +413,34 @@ export default function PostEditor() {
     }
   };
 
+  const handleAddImage = () => {
+    setShowImageDialog(true);
+  };
+
+  const insertImage = () => {
+    if (imageUrl) {
+      const textarea = document.getElementById('content') as HTMLTextAreaElement;
+      if (!textarea) return;
+
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const altText = imageAlt || 'Imagem';
+      const imageHtml = `<img src="${imageUrl}" alt="${altText}" style="max-width: 100%; height: auto; margin: 1rem 0; border-radius: 8px;" />`;
+      
+      const newContent = textarea.value.substring(0, start) + imageHtml + textarea.value.substring(end);
+      setPostData(prev => ({ ...prev, content: newContent }));
+      
+      setShowImageDialog(false);
+      setImageUrl('');
+      setImageAlt('');
+      
+      toast({
+        title: 'Imagem adicionada',
+        description: 'A imagem foi inserida no conteúdo com sucesso.',
+      });
+    }
+  };
+
   const formatText = (format: string) => {
     const textarea = document.getElementById('content') as HTMLTextAreaElement;
     if (!textarea) return;
@@ -294,9 +485,9 @@ export default function PostEditor() {
     });
   };
 
-  const selectedCategory = categories.find(cat => cat.id === postData.categoryId);
+  // Removed duplicate selectedCategory declaration as it's already defined in state
 
-  if (isLoading) {
+  if (isLoading || isLoadingCategories) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
@@ -431,6 +622,22 @@ export default function PostEditor() {
                       <Link className="h-4 w-4 mr-2" />
                       Link
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddImage}
+                      className="text-green-600"
+                      title="Inserir imagem"
+                    >
+                      <Image className="h-4 w-4 mr-2" />
+                      Imagem
+                    </Button>
+                    <AIButton
+                      content={postData.content}
+                      onContentUpdate={(newContent) => setPostData(prev => ({ ...prev, content: newContent }))}
+                      disabled={savePostMutation.isPending}
+                    />
                   </div>
                 </div>
                 <Textarea
@@ -442,7 +649,7 @@ export default function PostEditor() {
                   placeholder="Escreva o conteúdo do artigo..."
                 />
                 <p className="text-sm text-muted-foreground">
-                  Dica: Selecione um texto e use os botões acima para formatar (H1, H2, Negrito, Lista) ou adicionar links.
+                  Dica: Selecione um texto e use os botões acima para formatar (H1, H2, Negrito, Lista) ou adicionar links. Use o botão Imagem para inserir fotos em qualquer lugar do conteúdo.
                 </p>
               </div>
             </CardContent>
@@ -548,8 +755,16 @@ export default function PostEditor() {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="category">Categoria</Label>
-                <Select value={postData.categoryId} onValueChange={(value) => setPostData(prev => ({ ...prev, categoryId: value }))}>
-                  <SelectTrigger>
+                <Select 
+                  value={postData.categoryId} 
+                  onValueChange={(value) => {
+                    // Category selected
+                    setPostData(prev => ({ ...prev, categoryId: value }));
+                    const category = categories.find(cat => cat.id === value);
+                    setSelectedCategory(category || null);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione uma categoria" />
                   </SelectTrigger>
                   <SelectContent>
@@ -571,16 +786,31 @@ export default function PostEditor() {
                     {selectedCategory.name}
                   </Badge>
                 )}
+                <div className="text-xs text-muted-foreground mt-1">
+                  Total de categorias: {categories.length}
+                </div>
               </div>
 
               <div>
-                <Label htmlFor="featuredImage">Imagem Destacada</Label>
-                <Input
-                  id="featuredImage"
-                  value={postData.featuredImage}
-                  onChange={(e) => setPostData(prev => ({ ...prev, featuredImage: e.target.value }))}
-                  placeholder="URL da imagem"
+                <FeaturedImageUpload
+                  label="Imagem Destacada"
+                  currentImageUrl={postData.featuredImage}
+                  onImageSelected={(url) => setPostData(prev => ({ ...prev, featuredImage: url }))}
+                  placeholder="URL da imagem destacada"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="videoUrl">Vídeo do YouTube (opcional)</Label>
+                <Input
+                  id="videoUrl"
+                  value={postData.videoUrl || ''}
+                  onChange={(e) => setPostData(prev => ({ ...prev, videoUrl: e.target.value }))}
+                  placeholder="URL do vídeo do YouTube"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Se preenchido, o vídeo será exibido no lugar da imagem na página do post
+                </p>
               </div>
 
               <div>
@@ -667,6 +897,44 @@ export default function PostEditor() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowLinkDialog(false)}>Cancelar</Button>
             <Button onClick={insertLink}>Adicionar Link</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Inserir Imagem</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <ImageUpload
+              label="Selecionar Imagem"
+              currentImageUrl={imageUrl}
+              onImageSelected={setImageUrl}
+              placeholder="URL da imagem ou selecione um arquivo"
+              postId={id}
+              positionInContent={0}
+            />
+            <div>
+              <Label htmlFor="imageAlt">Texto Alternativo (Alt)</Label>
+              <Input
+                id="imageAlt"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder="Descrição da imagem"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              A imagem será inserida na posição atual do cursor no conteúdo.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowImageDialog(false);
+              setImageUrl('');
+              setImageAlt('');
+            }}>Cancelar</Button>
+            <Button onClick={insertImage} disabled={!imageUrl}>Inserir Imagem</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

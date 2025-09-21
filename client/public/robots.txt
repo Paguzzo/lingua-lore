@@ -1,8 +1,24 @@
+# Robots.txt for CriativeIA
+# https://criativeai.com/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /*.json$
+Disallow: /*?*
+
+# Specific bots
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +26,8 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+# Crawl delay
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://criativeai.com/sitemap.xml

@@ -1,0 +1,119 @@
+{
+  "header": {
+    "logoName": "CriativeIA",
+    "logoSubtitle": "Powered by AI",
+    "home": "Início",
+    "about": "Sobre",
+    "contact": "Contato",
+    "search": "Buscar",
+    "login": "Entrar",
+    "admin": "Admin",
+    "selectLanguage": "Selecionar idioma"
+  },
+  "categories": {
+    "iaCriativa": "IA Criativa",
+    "ferramentas": "Ferramentas",
+    "automacao": "Automação",
+    "tutoriais": "Tutoriais"
+  },
+  "footer": {
+    "logoName": "Lingua Lore",
+    "description": "Seu blog de IA e tecnologia.",
+    "about": "Sobre",
+    "contact": "Contato",
+    "privacyPolicy": "Política de Privacidade",
+    "copyright": "CriativeIA. Todos os direitos reservados."
+  },
+  "hero": {
+    "title": "O Futuro da IA: Tendências e Inovações que Você Precisa Conhecer",
+    "excerpt": "Explore as últimas tendências em inteligência artificial e descubra como elas estão moldando o futuro da tecnologia e da sociedade.",
+    "author": "Equipe CriativeIA",
+    "readTimeSuffix": "min",
+    "readFullArticle": "Ler Artigo Completo",
+    "featuredArticle": "Artigo em Destaque"
+  },
+  "seo": {
+    "defaultTitle": "CriativeIA - Inteligência Criativa para o Futuro",
+    "defaultDescription": "Explore o futuro da criação de conteúdo com CriativeIA. Combinamos inteligência artificial com criatividade humana para resultados extraordinários.",
+    "defaultKeywords": "inteligência artificial, IA, criatividade, conteúdo, automação, ferramentas IA, blog, tecnologia",
+    "siteName": "CriativeIA"
+  },
+  "postsGrid": {
+    "recentArticles": "Artigos Recentes",
+    "noPostsYet": "Nenhum post publicado ainda.",
+    "featuredPost": "Post em Destaque",
+    "popularPosts": "Posts Populares"
+  },
+  "sidebar": {
+    "newsletter": {
+      "errorSubscription": "Erro ao se inscrever na newsletter",
+      "successTitle": "Inscrição realizada com sucesso!",
+      "successDescription": "Você receberá um email de confirmação em breve.",
+      "errorTitle": "Erro ao se inscrever",
+      "title": "Newsletter",
+      "description": "Receba as últimas novidades sobre IA e tecnologia diretamente no seu email.",
+      "placeholderEmail": "Seu email",
+      "submitting": "Inscrevendo...",
+      "subscribe": "Inscrever-se"
+    },
+    "popularArticles": {
+      "article1": {
+        "title": "10 Ferramentas de IA Que Todo Criador Deveria Conhecer",
+        "excerpt": "Descubra as melhores ferramentas de inteligência artificial...",
+        "author": "Equipe CriativeIA",
+        "readTime": "5 min",
+        "category": "IA Tools"
+      },
+      "article2": {
+        "title": "ChatGPT vs Claude: Qual IA Escolher para seu Projeto?",
+        "excerpt": "Comparamos as principais ferramentas de IA disponíveis...",
+        "author": "Carlos Oliveira",
+        "readTime": "7 min",
+        "category": "IA Tools"
+      }
+    },
+    "advertisement": "PUBLICIDADE",
+    "googleAdsSpace": "Espaço para Google Ads",
+    "popularPosts": "Posts Populares",
+    "followUs": "Siga-nos",
+    "socialMedia": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "youtube": "YouTube",
+      "instagram": "Instagram"
+    }
+  },
+  "pages": {
+    "about": {
+      "title": "Sobre Nós",
+      "description": "Conheça nossa missão e equipe"
+    },
+    "contact": {
+      "title": "Contato",
+      "description": "Entre em contato conosco"
+    },
+    "privacy": {
+      "title": "Política de Privacidade",
+      "description": "Nossa política de privacidade"
+    },
+    "terms": {
+      "title": "Termos de Uso",
+      "description": "Termos e condições de uso"
+    }
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "readMore": "Leia mais",
+    "showLess": "Mostrar menos"
+  }
+}

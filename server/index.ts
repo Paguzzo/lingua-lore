@@ -1,12 +1,33 @@
+// Carregar variáveis de ambiente primeiro
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { MemoryStorage } from "./memory-storage";
 import { seedMemoryStorage } from "./memory-seed";
+import { emailService } from "./email-service";
+import { storage } from "./storage";
+import path from "path";
+import fs from "fs";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// CORS configuration
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -44,11 +65,19 @@ app.get('/healthz', (_req: Request, res: Response) => {
 });
 
 (async () => {
-  // Initialize in-memory storage with default data
-  const memoryStorage = new MemoryStorage();
-  await seedMemoryStorage(memoryStorage);
+  // Initialize storage with default data
+  if (storage instanceof MemoryStorage) {
+    await seedMemoryStorage(storage);
+  }
 
-  const server = await registerRoutes(app, memoryStorage);
+  // Initialize email service
+  try {
+    await emailService.initialize();
+  } catch (error) {
+    console.error('Failed to initialize email service:', error);
+  }
+
+  const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -63,8 +92,8 @@ app.get('/healthz', (_req: Request, res: Response) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   // Start listening immediately so the preview can connect
-  const port = 5000;
-  server.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
+  const port = parseInt(process.env.PORT || "3004", 10);
+  server.listen(port, "localhost", () => {
     log(`serving on port ${port}`);
   });
 
@@ -80,6 +109,28 @@ app.get('/healthz', (_req: Request, res: Response) => {
         serveStatic(app);
         log("Static serving initialized", "express");
       }
+      
+      // Adiciona middleware para lidar com rotas do React Router
+      // Este middleware deve ser adicionado APÓS todas as outras rotas
+      app.get('*', (req, res, next) => {
+        // Se for uma rota de API, deixa passar para os handlers específicos
+        if (req.path.startsWith('/api')) {
+          return next();
+        }
+        
+        // Para todas as outras rotas, serve o index.html para o React Router lidar
+        // Em desenvolvimento, usamos o arquivo index.html na raiz do cliente
+        const indexPath = path.resolve(process.cwd(), 'client/index.html');
+          
+        // Verifica se o arquivo existe antes de tentar enviá-lo
+        if (fs.existsSync(indexPath)) {
+          return res.sendFile(indexPath);
+        } else {
+          console.error(`Arquivo não encontrado: ${indexPath}`);
+          return res.status(500).send('Erro interno do servidor: arquivo index.html não encontrado');
+        }
+      });
+      
     } catch (e: any) {
       console.error("Failed to initialize frontend middleware:", e);
       // Fallback: minimal online page so the preview can connect

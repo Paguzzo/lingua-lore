@@ -22,7 +22,14 @@ export default defineConfig(async ({ mode }) => ({
       : []),
   ].filter(Boolean),
   server: {
-    port: 8080
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3004',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   resolve: {
     alias: {
@@ -35,5 +42,38 @@ export default defineConfig(async ({ mode }) => ({
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    // Otimizações para performance
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          utils: ['date-fns', 'lucide-react'],
+        },
+      },
+    },
+    // Compressão e minificação
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production',
+      },
+    },
+    // Otimização de assets
+    assetsInlineLimit: 4096,
+    chunkSizeWarningLimit: 1000,
+  },
+  // Otimizações de desenvolvimento
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@tanstack/react-query',
+      'date-fns',
+      'lucide-react'
+    ],
   },
 }));

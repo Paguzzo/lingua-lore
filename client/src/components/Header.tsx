@@ -1,21 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Search, Globe, Brain, Zap, Settings } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useTranslation } from 'react-i18next';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  color: string;
+  description?: string;
+}
+
+interface CategoriesResponse {
+  categories: Category[];
+}
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [language, setLanguage] = useState("pt");
+  const { i18n, t } = useTranslation();
+  const language = i18n.language;
 
-  const categories = [
-    { name: "IA Criativa", slug: "ia-criativa" },
-    { name: "Ferramentas", slug: "ferramentas" },
-    { name: "Automação", slug: "automacao" },
-    { name: "Tutoriais", slug: "tutoriais" },
-  ];
+  const { data: categoriesData } = useQuery<CategoriesResponse>({
+    queryKey: ['/api/categories'],
+    queryFn: () => apiRequest('/api/categories'),
+  });
+  
+  const categories = categoriesData?.categories || [];
 
-  const toggleLanguage = () => {
-    setLanguage(language === "pt" ? "es" : "pt");
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
   };
 
   return (
@@ -33,22 +55,22 @@ const Header = () => {
             </div>
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
-                CriativeIA
+                {t('header.logoName')}
               </h1>
-              <span className="text-xs text-muted-foreground -mt-1">Inteligência Criativa</span>
+              <span className="text-xs text-muted-foreground -mt-1">{t('header.logoSubtitle')}</span>
             </div>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {categories.map((category) => (
-              <a
+              <Link
                 key={category.slug}
-                href={`/category/${category.slug}`}
+                to={`/category/${category.slug}`}
                 className="text-foreground hover:text-primary transition-colors font-medium"
               >
                 {category.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -58,19 +80,38 @@ const Header = () => {
               <Search className="h-5 w-5" />
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleLanguage}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Globe className="h-5 w-5" />
-              <span className="sr-only">Toggle language</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Globe className="h-5 w-5" />
+                  <span className="sr-only">{t('header.selectLanguage')}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => changeLanguage("pt")}>
+                  <span className={`mr-2 ${language === "pt" ? "font-bold" : ""}`}>PT</span>
+                  <span className="text-muted-foreground">Português</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage("es")}>
+                  <span className={`mr-2 ${language === "es" ? "font-bold" : ""}`}>ES</span>
+                  <span className="text-muted-foreground">Español</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage("en")}>
+                  <span className={`mr-2 ${language === "en" ? "font-bold" : ""}`}>EN</span>
+                  <span className="text-muted-foreground">English</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <span className="text-sm text-muted-foreground hidden sm:block">
-              {language === "pt" ? "PT" : "ES"}
+              {language.toUpperCase()}
             </span>
+
+
 
             {/* Admin Access - Discrete Icon */}
             <Link to="/auth">
@@ -101,14 +142,14 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
               {categories.map((category) => (
-                <a
+                <Link
                   key={category.slug}
-                  href={`/category/${category.slug}`}
+                  to={`/category/${category.slug}`}
                   className="text-foreground hover:text-primary transition-colors font-medium py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {category.name}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>

@@ -49,6 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ username, password }),
       });
 
+      console.log('🔐 Login successful, storing token:', {
+        tokenPreview: `${response.token.substring(0, 10)}...`,
+        user: response.user.username
+      });
+      
       localStorage.setItem('auth_token', response.token);
       localStorage.setItem('user_data', JSON.stringify(response.user));
       setUser(response.user);

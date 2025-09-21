@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -12,20 +12,38 @@ import {
   BarChart3,
   LogOut,
   Menu,
-  X
+  X,
+  Mail
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, signOut, userRole } = useAuth();
+export default function AdminLayout() {
+  const { user, signOut, userRole, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!user) {
+    return null;
+  }
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -48,6 +66,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Posts', href: '/admin/posts', icon: FileText },
     { name: 'Categorias', href: '/admin/categories', icon: Tags },
+    { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
     ...(userRole === 'admin' ? [
       { name: 'Usuários', href: '/admin/users', icon: Users },
       { name: 'Configurações', href: '/admin/settings', icon: Settings },
@@ -165,7 +184,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
+              <Outlet />
             </div>
           </div>
         </main>

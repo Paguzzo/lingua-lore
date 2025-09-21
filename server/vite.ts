@@ -53,6 +53,31 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
+  
+  // Rota catch-all para lidar com navegação do React Router em desenvolvimento
+  app.get("*", (req, res, next) => {
+    const isApiRequest = req.path.startsWith("/api");
+    const isStaticAsset = req.path.startsWith("/assets/") || req.path.match(/\.[a-zA-Z0-9]{2,4}$/);
+
+    // Deixa passar requisições de API ou de assets estáticos
+    if (isApiRequest || isStaticAsset) {
+      return next();
+    }
+
+    // Para as demais rotas, serve o index.html da pasta client (sem necessidade de build)
+    const indexPath = path.resolve(__dirname, "..", "client", "index.html");
+    return res.sendFile(indexPath);
+  });
+  
+  // Rota específica para a API em ambiente de desenvolvimento
+  app.use("/api/*", (req, res, next) => {
+    if (!req.route) {
+      return res.status(404).json({ error: "API endpoint not found" });
+    }
+    next();
+  });
+  
+  // Todas as outras rotas vão para o index.html para o React Router lidar
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
@@ -80,14 +105,29 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "public");
+  const distPath = path.resolve(__dirname, "..", "dist", "public");
+  const clientPath = path.resolve(__dirname, "..", "client");
 
   if (fs.existsSync(distPath)) {
     app.use(express.static(distPath));
-    // fall through to index.html if the file doesn't exist
-    app.use("*", (_req, res) => {
-      res.sendFile(path.resolve(distPath, "index.html"));
+    
+    // Adiciona rota para lidar com todas as requisições não-API em produção
+    app.get('*', (req, res, next) => {
+      // Se for uma rota de API, deixa passar para os handlers específicos
+      if (req.path.startsWith('/api')) {
+        return next();
+      }
+      
+      // Para todas as outras rotas, serve o index.html para o React Router lidar
+      const indexPath = path.resolve(clientPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      } else {
+        console.error(`Arquivo não encontrado: ${indexPath}`);
+        return res.status(500).send('Erro interno do servidor: arquivo index.html não encontrado');
+      }
     });
+    
     log(`Serving static assets from ${distPath}`);
     return;
   }

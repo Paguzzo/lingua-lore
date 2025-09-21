@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import LazyImage from "@/components/LazyImage";
 
 interface Post {
   id: number;
@@ -28,10 +29,11 @@ const PostCard = ({ post, variant = "default" }: PostCardProps) => {
           <div className="flex space-x-4">
           <div className="flex-shrink-0">
             <div className="w-24 h-24 rounded-lg overflow-hidden">
-              <img
+              <LazyImage
                 src={post.imageUrl}
                 alt={post.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                aspectRatio="square"
               />
             </div>
           </div>
@@ -82,10 +84,11 @@ const PostCard = ({ post, variant = "default" }: PostCardProps) => {
       <article className="group cursor-pointer bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-border">
       {/* Image */}
       <div className="aspect-[16/10] overflow-hidden">
-        <img
+        <LazyImage
           src={post.imageUrl}
           alt={post.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          aspectRatio="auto"
         />
       </div>
 

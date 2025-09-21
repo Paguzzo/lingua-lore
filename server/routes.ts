@@ -1,241 +1,80 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { IStorage } from "./storage";
-import { insertCategorySchema, insertPostSchema, insertProfileSchema, insertUserSchema } from "../shared/schema";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { storage } from "./storage";
+import { emailService } from "./email-service";
+import { imageService } from "./image-service";
+import { aiService } from "./ai-service";
+import { upload } from "./upload/cloudinary";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key";
+// Import route modules
+import authRoutes from "./routes/auth";
+import categoriesRoutes from "./routes/categories";
+import postsRoutes from "./routes/posts";
+import uploadRoutes from "./routes/upload";
+import aiRoutes from "./routes/ai";
 
-// Middleware for authentication
-function authenticateToken(req: any, res: any, next: any) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Register route modules
+  app.use("/api/auth", authRoutes);
+  app.use("/api/categories", categoriesRoutes);
+  app.use("/api/posts", postsRoutes);
+  app.use("/api/upload", uploadRoutes);
+  app.use("/api/ai", aiRoutes);
 
-  if (!token) {
-    return res.sendStatus(401);
-  }
+  // Note: Image upload routes are now handled by the dedicated upload router at line 21
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-}
-
-export async function registerRoutes(app: Express, storage: IStorage): Promise<Server> {
-  // Authentication routes
-  app.post("/api/auth/login", async (req, res) => {
+  // Buscar imagens no Pexels
+  app.get("/api/images/pexels/search", async (req, res) => {
     try {
-      const { username, password } = req.body;
-      const user = await storage.getUserByUsername(username);
-
-      if (!user || !bcrypt.compareSync(password, user.password)) {
-        return res.status(401).json({ error: "Invalid credentials" });
+      const { query } = req.query;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Query de busca é obrigatória" });
       }
 
-      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET);
-      res.json({ token, user: { id: user.id, username: user.username } });
+      const images = await imageService.searchPexelsImages(query);
+      res.json(images);
     } catch (error) {
-      res.status(500).json({ error: "Login failed" });
+      console.error('Erro ao buscar imagens no Pexels:', error);
+      res.status(500).json({ error: "Falha ao buscar imagens no Pexels" });
     }
   });
 
-  app.post("/api/auth/register", async (req, res) => {
+  // Gerar imagem com OpenAI
+  app.post("/api/images/generate/openai", async (req, res) => {
     try {
-      const userData = insertUserSchema.parse(req.body);
-      const hashedPassword = bcrypt.hashSync(userData.password, 10);
+      const { prompt } = req.body;
+      
+      if (!prompt || typeof prompt !== 'string') {
+        return res.status(400).json({ error: "Prompt é obrigatório" });
+      }
 
-      const user = await storage.createUser({
-        ...userData,
-        password: hashedPassword
-      });
-
-      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET);
-      res.json({ token, user: { id: user.id, username: user.username } });
+      const optimizedPrompt = imageService.optimizePrompt(prompt);
+      const imageUrl = await imageService.generateImageOpenAI(optimizedPrompt);
+      
+      res.json({ url: imageUrl });
     } catch (error) {
-      res.status(400).json({ error: "Registration failed" });
+      console.error('Erro ao gerar imagem com OpenAI:', error);
+      res.status(500).json({ error: "Falha ao gerar imagem com OpenAI" });
     }
   });
 
-  // Categories routes
-  app.get("/api/categories", async (req, res) => {
+  // Gerar imagem com Freepik
+  app.post("/api/images/generate/freepik", async (req, res) => {
     try {
-      const categories = await storage.getCategories();
-      res.json(categories);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch categories" });
-    }
-  });
-
-  app.post("/api/categories", authenticateToken, async (req, res) => {
-    try {
-      const categoryData = insertCategorySchema.parse(req.body);
-      const category = await storage.createCategory(categoryData);
-      res.json(category);
-    } catch (error) {
-      res.status(400).json({ error: "Failed to create category" });
-    }
-  });
-
-  app.put("/api/categories/:id", authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const categoryData = insertCategorySchema.partial().parse(req.body);
-      const category = await storage.updateCategory(id, categoryData);
-
-      if (!category) {
-        return res.status(404).json({ error: "Category not found" });
+      const { prompt } = req.body;
+      
+      if (!prompt || typeof prompt !== 'string') {
+        return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      res.json(category);
+      const optimizedPrompt = imageService.optimizePrompt(prompt);
+      const imageUrl = await imageService.generateImageFreepik(optimizedPrompt);
+      
+      res.json({ url: imageUrl });
     } catch (error) {
-      res.status(400).json({ error: "Failed to update category" });
-    }
-  });
-
-  app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const success = await storage.deleteCategory(id);
-
-      if (!success) {
-        return res.status(404).json({ error: "Category not found" });
-      }
-
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete category" });
-    }
-  });
-
-  // Posts routes
-  app.get("/api/posts", async (req, res) => {
-    try {
-      const { published } = req.query;
-      const posts = published === 'true'
-        ? await storage.getPublishedPosts()
-        : await storage.getPosts();
-      res.json(posts);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch posts" });
-    }
-  });
-
-  app.get("/api/posts/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const post = await storage.getPost(id);
-
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-
-      res.json(post);
-    } catch (error) {
-      console.error("Error fetching post:", error);
-      res.status(500).json({ error: "Failed to fetch post" });
-    }
-  });
-
-  app.get("/api/posts/slug/:slug", async (req, res) => {
-    try {
-      const { slug } = req.params;
-      const post = await storage.getPostBySlug(slug);
-
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-
-      res.json(post);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch post" });
-    }
-  });
-
-  app.post("/api/posts", authenticateToken, async (req, res) => {
-    try {
-      const rawData = req.body;
-
-      // Convert publishedAt string to Date if it exists
-      if (rawData.publishedAt && typeof rawData.publishedAt === 'string') {
-        rawData.publishedAt = new Date(rawData.publishedAt);
-      }
-
-      // Handle empty categoryId
-      if (!rawData.categoryId || rawData.categoryId === '') {
-        rawData.categoryId = null;
-      }
-
-      const postData = insertPostSchema.parse(rawData);
-      const post = await storage.createPost(postData);
-      res.json(post);
-    } catch (error) {
-      console.error("Error creating post:", error);
-      res.status(400).json({ error: "Failed to create post", details: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  app.put("/api/posts/:id", authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const rawData = req.body;
-
-      // Convert publishedAt string to Date if it exists
-      if (rawData.publishedAt && typeof rawData.publishedAt === 'string') {
-        rawData.publishedAt = new Date(rawData.publishedAt);
-      }
-
-      const postData = insertPostSchema.partial().parse(rawData);
-      const post = await storage.updatePost(id, postData);
-
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-
-      res.json(post);
-    } catch (error) {
-      console.error("Error updating post:", error);
-      res.status(400).json({ error: "Failed to update post", details: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  app.patch("/api/posts/:id", authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const rawData = req.body;
-
-      // Convert publishedAt string to Date if it exists
-      if (rawData.publishedAt && typeof rawData.publishedAt === 'string') {
-        rawData.publishedAt = new Date(rawData.publishedAt);
-      }
-
-      const postData = insertPostSchema.partial().parse(rawData);
-      const post = await storage.updatePost(id, postData);
-
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-
-      res.json(post);
-    } catch (error) {
-      console.error("Error updating post:", error);
-      res.status(400).json({ error: "Failed to update post", details: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  app.delete("/api/posts/:id", authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const success = await storage.deletePost(id);
-
-      if (!success) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete post" });
+      console.error('Erro ao gerar imagem com Freepik:', error);
+      res.status(500).json({ error: "Falha ao gerar imagem com Freepik" });
     }
   });
 
@@ -256,7 +95,7 @@ export async function registerRoutes(app: Express, storage: IStorage): Promise<S
     }
   });
 
-  app.get("/api/analytics", authenticateToken, async (req, res) => {
+  app.get("/api/analytics", async (req, res) => {
     try {
       const analytics = await storage.getAnalytics();
       res.json(analytics);
@@ -265,8 +104,10 @@ export async function registerRoutes(app: Express, storage: IStorage): Promise<S
     }
   });
 
+  // AI routes are handled by the dedicated AI router at line 22
+
   // Dashboard stats route
-  app.get("/api/dashboard/stats", authenticateToken, async (req, res) => {
+  app.get("/api/dashboard/stats", async (req, res) => {
     try {
       const [totalPosts, publishedPosts, analytics] = await Promise.all([
         storage.getPosts(),
@@ -286,6 +127,185 @@ export async function registerRoutes(app: Express, storage: IStorage): Promise<S
       res.status(500).json({ error: "Failed to fetch dashboard stats" });
     }
   });
+
+  // Analytics dashboard route
+  app.get("/api/analytics/dashboard", async (req, res) => {
+    try {
+      const [analytics, posts] = await Promise.all([
+        storage.getAnalytics(),
+        storage.getPublishedPosts()
+      ]);
+
+      // Calculate total views
+      const pageViews = analytics.filter(a => a.eventType === 'page_view');
+      const totalViews = pageViews.length;
+
+      // Calculate unique visitors (based on IP addresses)
+      const uniqueIPs = new Set(pageViews.map(a => a.ipAddress).filter(Boolean));
+      const uniqueVisitors = uniqueIPs.size;
+
+      // Calculate average time on site (mock calculation)
+      const avgTimeOnSite = '3m 42s'; // This would need proper tracking
+
+      // Calculate bounce rate (mock calculation)
+      const bounceRate = '32%'; // This would need proper session tracking
+
+      // Get top posts by views
+      const postViews = pageViews.reduce((acc, view) => {
+        if (view.postId) {
+          acc[view.postId] = (acc[view.postId] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+      const topPosts = Object.entries(postViews)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([postId, views]) => {
+          const post = posts.find(p => p.id === postId);
+          return {
+            title: post?.title || 'Post não encontrado',
+            views,
+            slug: post?.slug || ''
+          };
+        });
+
+      // Get views over time (last 5 days)
+      const now = new Date();
+      const viewsOverTime = [];
+      for (let i = 4; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dayStart = new Date(date.setHours(0, 0, 0, 0));
+        const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+        
+        const dayViews = pageViews.filter(view => {
+          const viewDate = new Date(view.createdAt);
+          return viewDate >= dayStart && viewDate <= dayEnd;
+        }).length;
+
+        viewsOverTime.push({
+          date: dayStart.toISOString().split('T')[0],
+          views: dayViews
+        });
+      }
+
+      res.json({
+        totalViews,
+        uniqueVisitors,
+        avgTimeOnSite,
+        bounceRate,
+        topPosts,
+        viewsOverTime
+      });
+    } catch (error) {
+      console.error('Error fetching analytics dashboard:', error);
+      res.status(500).json({ error: "Failed to fetch analytics dashboard" });
+    }
+  });
+
+  // Newsletter Subscribers routes
+  app.get("/api/subscribers", async (req, res) => {
+    try {
+      const subscribers = await storage.getSubscribers();
+      res.json(subscribers);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch subscribers" });
+    }
+  });
+
+  app.post("/api/subscribers", async (req, res) => {
+    try {
+      const { email, name, source = 'newsletter' } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      // Check if email already exists
+      const existingSubscriber = await storage.getSubscriberByEmail(email);
+      if (existingSubscriber) {
+        return res.status(409).json({ error: "Email already subscribed" });
+      }
+
+      const subscriber = await storage.createSubscriber({
+        email,
+        name,
+        source,
+        isActive: true,
+        emailVerified: false
+      });
+
+      // Send welcome email
+      try {
+        await emailService.sendWelcomeEmail(email, name);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the subscription if email fails
+      }
+
+      res.json({ success: true, subscriber });
+    } catch (error) {
+      console.error("Error creating subscriber:", error);
+      res.status(400).json({ error: "Failed to subscribe" });
+    }
+  });
+
+  app.delete("/api/subscribers/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteSubscriber(id);
+
+      if (!success) {
+        return res.status(404).json({ error: "Subscriber not found" });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete subscriber" });
+    }
+  });
+
+  app.patch("/api/subscribers/:id/unsubscribe", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const subscriber = await storage.updateSubscriber(id, {
+        isActive: false,
+        unsubscribedAt: new Date()
+      });
+
+      if (!subscriber) {
+        return res.status(404).json({ error: "Subscriber not found" });
+      }
+
+      res.json({ success: true, subscriber });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to unsubscribe" });
+    }
+  });
+
+  // Test email configuration
+  app.post('/api/subscribers/test-email', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email é obrigatório' });
+      }
+      
+      if (!emailService.isConfigured()) {
+        return res.status(400).json({ error: 'Serviço de email não está configurado' });
+      }
+      
+      await emailService.sendTestEmail(email);
+      
+      res.json({ success: true, message: 'Email de teste enviado com sucesso' });
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      res.status(500).json({ error: 'Erro ao enviar email de teste: ' + error.message });
+    }
+  });
+
 
   const httpServer = createServer(app);
   return httpServer;

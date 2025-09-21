@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import PostCard from "./PostCard";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from 'react-i18next';
+import { validateAndFixImageUrl } from '@/lib/imageUtils';
 
 interface Post {
   id: string;
@@ -9,23 +11,37 @@ interface Post {
   authorName: string;
   publishedAt: string;
   readTime: number;
-  categories?: { name: string; color: string };
+  category?: { name: string; color: string };
   featuredImage: string;
   slug: string;
   isPopular?: boolean;
+  position?: 'featured' | 'recent' | 'popular';
+  isFeatured?: boolean;
+}
+
+interface PostsResponse {
+  posts: Post[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 }
 
 const PostsGrid = () => {
-  const { data: posts = [], isLoading } = useQuery<Post[]>({
+  const { t } = useTranslation();
+  const { data, isLoading } = useQuery<PostsResponse>({
     queryKey: ['/api/posts'],
     queryFn: () => apiRequest('/api/posts?published=true'),
   });
+  
+  const posts = data?.posts || [];
 
   if (isLoading) {
     return (
       <div className="space-y-8">
         <div>
-          <h2 className="text-2xl font-bold mb-6">Artigos Recentes</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('postsGrid.recentArticles')}</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse">
@@ -46,45 +62,66 @@ const PostsGrid = () => {
     return (
       <div className="space-y-8">
         <div>
-          <h2 className="text-2xl font-bold mb-6">Artigos Recentes</h2>
-          <p className="text-muted-foreground">Nenhum post publicado ainda.</p>
+          <h2 className="text-2xl font-bold mb-6">{t('postsGrid.recentArticles')}</h2>
+          <p className="text-muted-foreground">{t('postsGrid.noPostsYet')}</p>
         </div>
       </div>
     );
   }
 
-  // Separar posts por categoria/tipo
-  const featuredPosts = posts.slice(0, 1); // Primeiro post como destaque
-  const recentPosts = posts.slice(1, 4); // Próximos 3 como recentes
-  const popularPosts = posts.slice(4, 7); // Próximos 3 como populares
+  // Separar posts por categoria/tipo usando o campo position
+  const featuredPosts = posts.filter(post => post.position === 'featured' || post.isFeatured);
+  const recentPosts = posts.filter(post => post.position === 'recent');
+  const popularPosts = posts.filter(post => post.position === 'popular');
+
+  // Se não houver posts com posições específicas, usar fallback
+  const allOtherPosts = posts.filter(post => 
+    !featuredPosts.includes(post) && 
+    !recentPosts.includes(post) && 
+    !popularPosts.includes(post)
+  );
+
+  // Se não há posts em destaque, usar o primeiro como fallback
+  const finalFeaturedPosts = featuredPosts.length > 0 ? featuredPosts.slice(0, 1) : allOtherPosts.slice(0, 1);
+  
+  // Se não há posts recentes suficientes, preencher com outros
+  const finalRecentPosts = recentPosts.length > 0 ? recentPosts.slice(0, 3) : 
+    (featuredPosts.length > 0 ? allOtherPosts.slice(0, 3) : allOtherPosts.slice(1, 4));
+  
+  // Se não há posts populares suficientes, preencher com os restantes
+  const finalPopularPosts = popularPosts.length > 0 ? popularPosts.slice(0, 3) : 
+    allOtherPosts.filter(post => 
+      !finalFeaturedPosts.includes(post) && 
+      !finalRecentPosts.includes(post)
+    ).slice(0, 3);
 
   return (
     <div className="space-y-12">
       {/* Post em Destaque */}
-      {featuredPosts.length > 0 && (
+      {finalFeaturedPosts.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold mb-6">Post em Destaque</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('postsGrid.featuredPost')}</h2>
           <PostCard post={{
-            id: parseInt(featuredPosts[0].id),
-            title: featuredPosts[0].title,
-            excerpt: featuredPosts[0].excerpt || '',
-            author: featuredPosts[0].authorName,
-            publishedAt: featuredPosts[0].publishedAt,
-            readTime: `${featuredPosts[0].readTime} min`,
-            category: featuredPosts[0].categories?.name || 'Geral',
-            imageUrl: featuredPosts[0].featuredImage || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&h=400',
-            slug: featuredPosts[0].slug,
+            id: parseInt(finalFeaturedPosts[0].id),
+            title: finalFeaturedPosts[0].title,
+            excerpt: finalFeaturedPosts[0].excerpt || '',
+            author: finalFeaturedPosts[0].authorName,
+            publishedAt: finalFeaturedPosts[0].publishedAt,
+            readTime: `${finalFeaturedPosts[0].readTime} min`,
+            category: finalFeaturedPosts[0].category?.name || 'Geral',
+            imageUrl: validateAndFixImageUrl(finalFeaturedPosts[0].featuredImage, finalFeaturedPosts[0].title),
+            slug: finalFeaturedPosts[0].slug,
             isPopular: false
           }} />
         </div>
       )}
 
       {/* Artigos Recentes */}
-      {recentPosts.length > 0 && (
+      {finalRecentPosts.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold mb-6">Artigos Recentes</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('postsGrid.recentArticles')}</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {recentPosts.map((post) => (
+            {finalRecentPosts.map((post) => (
               <PostCard 
                 key={post.id}
                 post={{
@@ -94,8 +131,8 @@ const PostsGrid = () => {
                   author: post.authorName,
                   publishedAt: post.publishedAt,
                   readTime: `${post.readTime} min`,
-                  category: post.categories?.name || 'Geral',
-                  imageUrl: post.featuredImage || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&h=400',
+                  category: post.category?.name || 'Geral',
+                  imageUrl: validateAndFixImageUrl(post.featuredImage, post.title),
                   slug: post.slug
                 }}
               />
@@ -105,11 +142,11 @@ const PostsGrid = () => {
       )}
 
       {/* Posts Populares */}
-      {popularPosts.length > 0 && (
+      {finalPopularPosts.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold mb-6">Posts Populares</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('postsGrid.popularPosts')}</h2>
           <div className="space-y-4">
-            {popularPosts.map((post) => (
+            {finalPopularPosts.map((post) => (
               <PostCard 
                 key={post.id}
                 variant="minimal"
@@ -120,8 +157,8 @@ const PostsGrid = () => {
                   author: post.authorName,
                   publishedAt: post.publishedAt,
                   readTime: `${post.readTime} min`,
-                  category: post.categories?.name || 'Geral',
-                  imageUrl: post.featuredImage || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&h=400',
+                  category: post.category?.name || 'Geral',
+                  imageUrl: validateAndFixImageUrl(post.featuredImage, post.title),
                   slug: post.slug,
                   isPopular: true
                 }}

@@ -4,34 +4,28 @@ import { categories } from '../shared/schema';
 
 const defaultCategories = [
   {
-    name: 'Tecnologia',
-    slug: 'tecnologia',
-    color: '#3B82F6',
-    description: 'Artigos sobre tecnologia e inovação'
-  },
-  {
-    name: 'IA Tools',
-    slug: 'ia-tools',
+    name: 'IA Criativa',
+    slug: 'ia-criativa',
     color: '#8B5CF6',
-    description: 'Ferramentas de inteligência artificial'
+    description: 'Conteúdos sobre criatividade e inteligência artificial'
   },
   {
-    name: 'Automações',
-    slug: 'automacoes',
+    name: 'Ferramentas',
+    slug: 'ferramentas',
+    color: '#3B82F6',
+    description: 'Guia e reviews de ferramentas úteis'
+  },
+  {
+    name: 'Automação',
+    slug: 'automacao',
     color: '#10B981',
-    description: 'Automação de processos e workflows'
+    description: 'Dicas e tutoriais de automação'
   },
   {
-    name: 'Monetização',
-    slug: 'monetizacao',
+    name: 'Tutoriais',
+    slug: 'tutoriais',
     color: '#F59E0B',
-    description: 'Estratégias de monetização'
-  },
-  {
-    name: 'Marketing Digital',
-    slug: 'marketing-digital',
-    color: '#EF4444',
-    description: 'Marketing e estratégias digitais'
+    description: 'Passo a passo e conteúdos educativos'
   }
 ];
 

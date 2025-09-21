@@ -1,0 +1,120 @@
+{
+  "header": {
+    "logoName": "CriativeIA",
+    "logoSubtitle": "Powered by AI",
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "search": "Search",
+    "login": "Login",
+    "admin": "Admin",
+    "selectLanguage": "Select language"
+  },
+  "categories": {
+    "iaCriativa": "Creative AI",
+    "ferramentas": "Tools",
+    "automacao": "Automation",
+    "tutoriais": "Tutorials"
+  },
+  "footer": {
+    "logoName": "Lingua Lore",
+    "description": "Your AI and technology blog.",
+    "about": "About",
+    "contact": "Contact",
+    "privacyPolicy": "Privacy Policy",
+    "copyright": "CriativeIA. All rights reserved."
+  },
+  "hero": {
+    "title": "CriativeIA: The Future of Intelligent Content Creation",
+    "excerpt": "Explore how our platform revolutionizes content creation by combining artificial intelligence with human creativity for extraordinary results.",
+    "author": "CriativeIA Team",
+    "category": "AI & Creativity",
+    "readTimeSuffix": "min read",
+    "readFullArticle": "Read Full Article",
+    "featuredArticle": "Featured Article"
+  },
+  "seo": {
+    "defaultTitle": "CriativeIA - Creative Intelligence for the Future",
+    "defaultDescription": "Explore the future of content creation with CriativeIA. We combine artificial intelligence with human creativity for extraordinary results.",
+    "defaultKeywords": "artificial intelligence, AI, creativity, content, automation, AI tools, blog, technology",
+    "siteName": "CriativeIA"
+  },
+  "postsGrid": {
+    "recentArticles": "Recent Articles",
+    "noPostsYet": "No posts published yet.",
+    "featuredPost": "Featured Post",
+    "popularPosts": "Popular Posts"
+  },
+  "sidebar": {
+    "newsletter": {
+      "errorSubscription": "Error subscribing to newsletter",
+      "successTitle": "Subscription successful!",
+      "successDescription": "You will receive a confirmation email shortly.",
+      "errorTitle": "Subscription error",
+      "title": "Newsletter",
+      "description": "Receive the latest news on AI and technology directly in your email.",
+      "placeholderEmail": "Your email",
+      "submitting": "Submitting...",
+      "subscribe": "Subscribe"
+    },
+    "popularArticles": {
+      "article1": {
+        "title": "10 AI Tools Every Creator Should Know",
+        "excerpt": "Discover the best artificial intelligence tools...",
+        "author": "CriativeIA Team",
+        "readTime": "5 min",
+        "category": "AI Tools"
+      },
+      "article2": {
+        "title": "ChatGPT vs Claude: Which AI to Choose for Your Project?",
+        "excerpt": "We compare the main AI tools available...",
+        "author": "Carlos Oliveira",
+        "readTime": "7 min",
+        "category": "AI Tools"
+      }
+    },
+    "advertisement": "ADVERTISEMENT",
+    "googleAdsSpace": "Google Ads Space",
+    "popularPosts": "Popular Posts",
+    "followUs": "Follow Us",
+    "socialMedia": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "youtube": "YouTube",
+      "instagram": "Instagram"
+    }
+  },
+  "pages": {
+    "about": {
+      "title": "About Us",
+      "description": "Learn about our mission and team"
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Get in touch with us"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Our privacy policy"
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "description": "Terms and conditions of use"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "readMore": "Read more",
+    "showLess": "Show less"
+  }
+}

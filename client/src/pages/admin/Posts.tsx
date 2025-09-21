@@ -27,9 +27,20 @@ export default function Posts() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: posts = [], isLoading: loading } = useQuery<Post[]>({
+  interface PostsResponse {
+    posts: Post[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+    };
+  }
+
+  const { data: postsData, isLoading: loading } = useQuery<PostsResponse>({
     queryKey: ['/api/posts'],
   });
+  
+  const posts = postsData?.posts || [];
 
   const deletePostMutation = useMutation({
     mutationFn: (id: string) => apiRequest(`/api/posts/${id}`, { method: 'DELETE' }),

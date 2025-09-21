@@ -30,10 +30,16 @@ export default function Categories() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: categories = [], isLoading } = useQuery<Category[]>({
+  interface CategoriesResponse {
+    categories: Category[];
+  }
+
+  const { data: categoriesData, isLoading } = useQuery<CategoriesResponse>({
     queryKey: ['/api/categories'],
     queryFn: () => apiRequest('/api/categories'),
   });
+  
+  const categories = categoriesData?.categories || [];
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => 

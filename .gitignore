@@ -1,6 +1,95 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS generated files
 .DS_Store
-server/public
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+*.lcov
+.nyc_output
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Vite
 vite.config.ts.*
+*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+drizzle/
+
+# Temporary files
+tmp/
+temp/
+
+# Vercel
+.vercel
+
+# Server public files
+server/public
+
+# Compressed files
 *.tar.gz
+*.tgz
+*.zip
+
+# Cache
+.cache/
+.parcel-cache
+
+# Testing
+.nyc_output/
+coverage/
+
+# Misc
+*.generated.*
+.yarn-integrity

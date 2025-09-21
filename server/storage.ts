@@ -1,16 +1,66 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import dotenv from 'dotenv';
+
+// Carregar variáveis de ambiente ANTES de tudo
+dotenv.config();
+
+import { drizzle } from "drizzle-orm/node-postgres";
+import pkg from 'pg';
+const { Pool } = pkg;
 import { eq, desc, and } from "drizzle-orm";
 import {
-  users, posts, categories, profiles, media, affiliateLinks, ctas, analytics, siteSettings, webhooks,
+  users, posts, categories, profiles, media, affiliateLinks, ctas, analytics, siteSettings, webhooks, subscribers,
   type User, type InsertUser, type Post, type InsertPost, type Category, type InsertCategory,
   type Profile, type InsertProfile, type Media, type InsertMedia, type AffiliateLink, type InsertAffiliateLink,
   type Cta, type InsertCta, type Analytics, type InsertAnalytics, type SiteSetting, type InsertSiteSetting,
   type Webhook, type InsertWebhook
 } from "@shared/schema";
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql);
+// Subscriber types
+export interface Subscriber {
+  id: string;
+  email: string;
+  name?: string;
+  isActive: boolean;
+  source: string;
+  subscribedAt: Date;
+  unsubscribedAt?: Date;
+  emailVerified: boolean;
+  verificationToken?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface InsertSubscriber {
+  email: string;
+  name?: string;
+  isActive?: boolean;
+  source?: string;
+  emailVerified?: boolean;
+  verificationToken?: string;
+}
+
+// Initialize database connection
+let db: any = null;
+
+function initializeDatabase() {
+  try {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL not configured');
+    }
+
+    console.log('🔗 Connecting to database...');
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+    db = drizzle(pool);
+    console.log('✅ Database connection established');
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error.message);
+    return false;
+  }
+}
 
 export interface IStorage {
   // User management
@@ -69,16 +119,31 @@ export interface IStorage {
   getSiteSetting(key: string): Promise<SiteSetting | undefined>;
   setSiteSetting(setting: InsertSiteSetting): Promise<SiteSetting>;
 
-  // Webhooks
+  // Webhook management
   getWebhooks(): Promise<Webhook[]>;
   createWebhook(webhook: InsertWebhook): Promise<Webhook>;
   updateWebhook(id: string, webhook: Partial<InsertWebhook>): Promise<Webhook | undefined>;
   deleteWebhook(id: string): Promise<boolean>;
+
+  // Subscriber management
+  getSubscribers(): Promise<Subscriber[]>;
+  getSubscriber(id: string): Promise<Subscriber | undefined>;
+  getSubscriberByEmail(email: string): Promise<Subscriber | undefined>;
+  createSubscriber(subscriber: InsertSubscriber): Promise<Subscriber>;
+  updateSubscriber(id: string, subscriber: Partial<InsertSubscriber>): Promise<Subscriber | undefined>;
+  deleteSubscriber(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
+  constructor() {
+    if (!db) {
+      throw new Error('Database not initialized. Please configure DATABASE_URL.');
+    }
+  }
+
   // User management
   async getUser(id: number): Promise<User | undefined> {
+    if (!db) throw new Error('Database not connected');
     const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return result[0];
   }
@@ -273,6 +338,9 @@ export class DatabaseStorage implements IStorage {
 
   // Site settings
   async getSiteSettings(): Promise<SiteSetting[]> {
+    if (!db) {
+      return [];
+    }
     return await db.select().from(siteSettings).orderBy(siteSettings.key);
   }
 
@@ -317,6 +385,50 @@ export class DatabaseStorage implements IStorage {
     const result = await db.delete(webhooks).where(eq(webhooks.id, id));
     return result.rowCount > 0;
   }
+
+  // Subscriber management
+  async getSubscribers(): Promise<Subscriber[]> {
+    return await db.select().from(subscribers).orderBy(desc(subscribers.createdAt));
+  }
+
+  async getSubscriber(id: string): Promise<Subscriber | undefined> {
+    const result = await db.select().from(subscribers).where(eq(subscribers.id, id));
+    return result[0];
+  }
+
+  async getSubscriberByEmail(email: string): Promise<Subscriber | undefined> {
+    const result = await db.select().from(subscribers).where(eq(subscribers.email, email));
+    return result[0];
+  }
+
+  async createSubscriber(subscriber: InsertSubscriber): Promise<Subscriber> {
+    const result = await db.insert(subscribers).values(subscriber).returning();
+    return result[0];
+  }
+
+  async updateSubscriber(id: string, subscriber: Partial<InsertSubscriber>): Promise<Subscriber | undefined> {
+    const result = await db.update(subscribers)
+      .set({ ...subscriber, updatedAt: new Date() })
+      .where(eq(subscribers.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteSubscriber(id: string): Promise<boolean> {
+    const result = await db.delete(subscribers).where(eq(subscribers.id, id));
+    return result.rowCount > 0;
+  }
 }
 
-export const storage = new DatabaseStorage();
+import { MemoryStorage } from "./memory-storage";
+
+// Initialize storage based on environment
+let storage: DatabaseStorage | MemoryStorage;
+
+// Force memory storage temporarily due to DB timeout issues
+console.log("⚡ Using memory storage (database connection issues)");
+console.log("📝 This is temporary - data will work but won't persist between restarts");
+storage = new MemoryStorage();
+
+export { storage };
+export type { IStorage } from "./database-storage";

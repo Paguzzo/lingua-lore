@@ -44,10 +44,12 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   excerpt: text("excerpt"),
   featuredImage: text("featured_image"),
+  videoUrl: text("video_url"), // URL do vídeo do YouTube
   categoryId: uuid("category_id"),
   authorName: text("author_name").notNull().default("Admin"),
   isPublished: boolean("is_published").default(false),
   isFeatured: boolean("is_featured").default(false),
+  views: integer("views").default(0),
   position: text("position").default("recent"), // "featured", "recent", "popular"
   publishedAt: timestamp("published_at", { withTimezone: true }),
   readTime: integer("read_time").default(5),
@@ -140,6 +142,21 @@ export const webhooks = pgTable("webhooks", {
   isActive: boolean("is_active").default(true),
   lastTriggeredAt: timestamp("last_triggered_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+// Newsletter Subscribers table
+export const subscribers = pgTable("subscribers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  isActive: boolean("is_active").default(true),
+  source: text("source").default("newsletter"), // newsletter, contact, comment
+  subscribedAt: timestamp("subscribed_at", { withTimezone: true }).defaultNow(),
+  unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+  emailVerified: boolean("email_verified").default(false),
+  verificationToken: text("verification_token"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 // Relations

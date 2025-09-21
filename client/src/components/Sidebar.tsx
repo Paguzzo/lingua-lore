@@ -4,38 +4,83 @@ import { Input } from "@/components/ui/input";
 import { Facebook, Twitter, Youtube, Instagram, Mail } from "lucide-react";
 import PostCard from "./PostCard";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const subscribeToNewsletter = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          source: 'sidebar'
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || t('sidebar.newsletter.errorSubscription'));
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: t('sidebar.newsletter.successTitle'),
+        description: t('sidebar.newsletter.successDescription'),
+      });
+      setEmail("");
+      setIsSubmitting(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('sidebar.newsletter.errorTitle'),
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+    },
+  });
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aqui você pode implementar a lógica de inscrição na newsletter
-    console.log("Newsletter subscription:", email);
-    setEmail("");
+    if (!email.trim()) return;
+    
+    setIsSubmitting(true);
+    subscribeToNewsletter.mutate(email);
   };
 
   // Artigos populares
   const popularArticles = [
     {
       id: 1,
-      title: "10 Ferramentas de IA Que Todo Criador Deveria Conhecer",
-      excerpt: "Descubra as melhores ferramentas de inteligência artificial...",
-      author: "Equipe CriativeIA",
+      title: t('sidebar.popularArticles.article1.title'),
+      excerpt: t('sidebar.popularArticles.article1.excerpt'),
+      author: t('sidebar.popularArticles.article1.author'),
       publishedAt: "2024-01-10",
-      readTime: "5 min",
-      category: "IA Tools",
+      readTime: t('sidebar.popularArticles.article1.readTime'),
+      category: t('sidebar.popularArticles.article1.category'),
       imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&h=300",
       slug: "10-ferramentas-ia-criador"
     },
     {
       id: 2,
-      title: "ChatGPT vs Claude: Qual IA Escolher para seu Projeto?",
-      excerpt: "Comparamos as principais ferramentas de IA disponíveis...",
-      author: "Carlos Oliveira",
+      title: t('sidebar.popularArticles.article2.title'),
+      excerpt: t('sidebar.popularArticles.article2.excerpt'),
+      author: t('sidebar.popularArticles.article2.author'),
       publishedAt: "2024-01-08",
-      readTime: "7 min",
-      category: "IA Tools",
+      readTime: t('sidebar.popularArticles.article2.readTime'),
+      category: t('sidebar.popularArticles.article2.category'),
       imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&h=300",
       slug: "chatgpt-vs-claude-qual-escolher"
     }
@@ -46,12 +91,12 @@ const Sidebar = () => {
       {/* Google Ads Space */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs text-muted-foreground">PUBLICIDADE</CardTitle>
+          <CardTitle className="text-xs text-muted-foreground">{t('sidebar.advertisement')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              Espaço para Google Ads
+              {t('sidebar.googleAdsSpace')}
               <br />
               300x250px
             </p>
@@ -64,17 +109,17 @@ const Sidebar = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
             <Mail className="h-5 w-5" />
-            Newsletter
+            {t('sidebar.newsletter.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-purple-100 mb-4">
-            Receba as últimas novidades sobre IA e tecnologia diretamente no seu email.
+            {t('sidebar.newsletter.description')}
           </p>
           <form onSubmit={handleNewsletterSubmit} className="space-y-3">
             <Input
               type="email"
-              placeholder="Seu email"
+              placeholder={t('sidebar.newsletter.placeholderEmail')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -82,9 +127,10 @@ const Sidebar = () => {
             />
             <Button 
               type="submit" 
-              className="w-full bg-white text-purple-600 hover:bg-purple-50"
+              disabled={isSubmitting}
+              className="w-full bg-white text-purple-600 hover:bg-purple-50 disabled:opacity-50"
             >
-              Inscrever-se
+              {isSubmitting ? t('sidebar.newsletter.submitting') : t('sidebar.newsletter.subscribe')}
             </Button>
           </form>
         </CardContent>
@@ -93,7 +139,7 @@ const Sidebar = () => {
       {/* Posts Populares */}
       <Card>
         <CardHeader>
-          <CardTitle>Posts Populares</CardTitle>
+          <CardTitle>{t('sidebar.popularPosts')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {popularArticles.map((post) => (
@@ -119,12 +165,12 @@ const Sidebar = () => {
       {/* Second Google Ads Space */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs text-muted-foreground">PUBLICIDADE</CardTitle>
+          <CardTitle className="text-xs text-muted-foreground">{t('sidebar.advertisement')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              Espaço para Google Ads
+              {t('sidebar.googleAdsSpace')}
               <br />
               300x600px
             </p>
@@ -135,24 +181,24 @@ const Sidebar = () => {
       {/* Siga-nos */}
       <Card>
         <CardHeader>
-          <CardTitle>Siga-nos</CardTitle>
+          <CardTitle>{t('sidebar.followUs')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <Facebook className="h-8 w-8 mx-auto mb-2 text-blue-600" />
               <div className="text-sm font-medium">25.7k</div>
-              <div className="text-xs text-muted-foreground">Facebook</div>
+              <div className="text-xs text-muted-foreground">{t('sidebar.socialMedia.facebook')}</div>
             </div>
             <div className="text-center">
               <Twitter className="h-8 w-8 mx-auto mb-2 text-blue-400" />
               <div className="text-sm font-medium">39.3k</div>
-              <div className="text-xs text-muted-foreground">Twitter</div>
+              <div className="text-xs text-muted-foreground">{t('sidebar.socialMedia.twitter')}</div>
             </div>
             <div className="text-center">
               <Youtube className="h-8 w-8 mx-auto mb-2 text-red-600" />
               <div className="text-sm font-medium">65.4k</div>
-              <div className="text-xs text-muted-foreground">YouTube</div>
+              <div className="text-xs text-muted-foreground">{t('sidebar.socialMedia.youtube')}</div>
             </div>
             <div className="text-center">
               <Instagram className="h-8 w-8 mx-auto mb-2 text-pink-600" />

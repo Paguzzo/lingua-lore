@@ -2,7 +2,7 @@
 import React from 'react';
 
 const TestPage = () => {
-  console.log("TestPage está sendo renderizada");
+  // TestPage component rendering
   
   return (
     <div style={{ padding: '20px', backgroundColor: 'white', minHeight: '100vh' }}>

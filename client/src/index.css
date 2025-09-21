@@ -109,3 +109,73 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for blog post content */
+@layer components {
+  .post-content {
+    @apply prose prose-lg max-w-none;
+  }
+
+  .post-content h1 {
+    @apply text-3xl font-bold mt-8 mb-4 text-foreground;
+    line-height: 1.2;
+  }
+
+  .post-content h2 {
+    @apply text-2xl font-bold mt-6 mb-3 text-foreground;
+    line-height: 1.3;
+  }
+
+  .post-content h3 {
+    @apply text-xl font-semibold mt-5 mb-3 text-foreground;
+    line-height: 1.4;
+  }
+
+  .post-content p {
+    @apply mb-4 text-muted-foreground leading-7;
+  }
+
+  .post-content ul, .post-content ol {
+    @apply mb-4 pl-6 text-muted-foreground;
+  }
+
+  .post-content li {
+    @apply mb-2;
+  }
+
+  .post-content blockquote {
+    @apply border-l-4 border-primary pl-4 my-4 italic text-muted-foreground;
+  }
+
+  .post-content img {
+    @apply rounded-lg shadow-lg my-6 mx-auto;
+  }
+
+  .post-content a {
+    @apply text-primary hover:underline;
+  }
+
+  .post-content strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .post-content code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm text-primary;
+  }
+
+  .post-content pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto my-4;
+  }
+
+  .post-content table {
+    @apply w-full border-collapse border border-border my-4;
+  }
+
+  .post-content th, .post-content td {
+    @apply border border-border px-4 py-2;
+  }
+
+  .post-content th {
+    @apply bg-muted font-semibold;
+  }
+}

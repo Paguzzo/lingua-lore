@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, TrendingUp, Users, Eye, Clock, Calendar } from 'lucide-react';
 
@@ -21,28 +22,8 @@ interface AnalyticsData {
 
 export default function Analytics() {
   const { data: analytics, isLoading } = useQuery<AnalyticsData>({
-    queryKey: ['/api/analytics'],
-    queryFn: async () => {
-      // Dados fictícios para demonstração
-      return {
-        totalViews: 15840,
-        uniqueVisitors: 8420,
-        avgTimeOnSite: '3m 42s',
-        bounceRate: '32%',
-        topPosts: [
-          { title: 'Transformação digital: impactos da IA no mundo dos negócios', views: 2450, slug: 'transformacao-digital-ia' },
-          { title: 'ChatGPT vs Claude: Qual IA Escolher?', views: 1820, slug: 'chatgpt-vs-claude' },
-          { title: '10 Ferramentas de IA Essenciais', views: 1340, slug: '10-ferramentas-ia' },
-        ],
-        viewsOverTime: [
-          { date: '2024-01-01', views: 450 },
-          { date: '2024-01-02', views: 520 },
-          { date: '2024-01-03', views: 380 },
-          { date: '2024-01-04', views: 640 },
-          { date: '2024-01-05', views: 590 },
-        ]
-      };
-    },
+    queryKey: ['/api/analytics/dashboard'],
+    queryFn: () => apiRequest('/api/analytics/dashboard'),
   });
 
   const statCards = [
